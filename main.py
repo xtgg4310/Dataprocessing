@@ -292,8 +292,8 @@ def search_the_same_time(data, data2, start, start2):
 
 
 if __name__ == '__main__':
-    doc = pd.read_csv(r"C:\Users\Enigma_2020\Hou Haozheng Dropbox\Hou Haozheng\PC\Desktop\another1.csv")
-    doc1 = pd.read_csv(r"C:\Users\Enigma_2020\Hou Haozheng Dropbox\Hou Haozheng\PC\Desktop\another2.csv")
+    doc = pd.read_csv(r"your path")
+    doc1 = pd.read_csv(r"anthor path")
     s1 = cal_scal(doc)
     s2 = cal_scal(doc1)
     # out = np.corrcoef(s1[500:12000], s2[500:12000])
