@@ -1,3 +1,4 @@
+import random
 from scipy.signal import stft
 import numpy as np
 import matplotlib.pyplot as plt
@@ -9,6 +10,9 @@ from scipy import stats as st
 from filterpy.kalman import KalmanFilter as klmf
 from scipy.signal import hilbert as hlb
 from scipy.fftpack import ifft
+import point
+import simulation as sl
+from bayes_opt import bayesian_optimization
 
 path_for = r"C:\Users\Enigma_2020\Hou Haozheng Dropbox\Hou Haozheng\PC\Desktop\fig\220425_breath_motion"
 
@@ -30,7 +34,6 @@ def envelope_extraction_hilbert_peak(data):
                 index[id] = i
                 id += 1
     new_enve = [0] * len(data)
-    # print(index)
     i = 0
     k = 0
     while k < len(index):
@@ -908,3 +911,83 @@ def amp2db(data):
     for i in range(len(data)):
         data[i] = 10 * math.log10(data[i])
     return data
+
+
+def x_y_cal(height, theta, dis):
+    k = np.tan(theta)
+    if k > 0:
+        flag = 1
+    else:
+        flag = -1
+    x = flag * np.sqrt(dis ** 2 - height ** 2) / (np.sqrt(1 + k ** 2))
+    y = k * x
+    return x, y
+
+
+def search_sonar_line_min_dis_theta(x, y, x_1, y_1, z, z_1, target_theta_1):
+    k_1 = np.tan(target_theta_1)
+    if x == x_1:
+        A = (z - z_1) / (y - y_1)
+        x_min_1 = x
+        y_min_1 = k_1 * x_min_1
+        z_min_1 = A * (y_min_1 - y_1) + z_1
+    else:
+        A = (y - y_1) / (x - x_1)
+        B = (z - z_1) / (x - x_1)
+        x_min_1 = (y - A * x) / (k_1 - A)
+        z_min_1 = B * (x_min_1 - x) + z
+        y_min_1 = k_1 * x_min_1
+    target_1 = point.point(x_min_1, y_min_1, z_min_1).r
+    return target_1
+
+
+def search_theta_ground_truth(point_set, theta_target):
+    for i in range(len(point_set) - 1):
+        if (point_set[i].theta - theta_target) * (point_set[i + 1].theta - theta_target) <= 0:
+            if point_set[i].theta == theta_target:
+                return point_set[i].r, point_set[i].theta
+            elif point_set[i + 1].theta == theta_target:
+                return point_set[i + 1].r, point_set[i + 1].theta
+            else:
+                return point_set[i].r, point_set[i].theta
+    if point_set[len(point_set) - 1].theta == theta_target:
+        return point_set[len(point_set) - 1].r, point_set[len(point_set) - 1].theta
+    else:
+        return -1
+
+
+def divide_two_pointset(dic_result):
+    index_dic = {}
+    index_dic_eval = {}
+    index_dic.update({0: [0, 1]})
+    index_dic.update({1: [0, 2]})
+    index_dic.update({2: [1, 2]})
+    index_dic.update({3: [0, 3]})
+    index_dic.update({4: [1, 3]})
+    index_dic.update({5: [2, 3]})
+    index_dic_eval.update({0: [0, 4]})
+    index_dic_eval.update({1: [1, 4]})
+    index_dic_eval.update({2: [2, 4]})
+    index_dic_eval.update({3: [3, 4]})
+    k_value = np.array([0] * 6)
+    k_eval = np.array([0] * 4)
+    index_random = np.array(random.sample(dic_result.keys(), 5))
+    for i in range(0, len(k_eval)):
+        k_eval[i] = (dic_result[index_random[index_dic_eval[i][0]]][1] - dic_result[index_random[index_dic_eval[i][1]]][
+            1]) / (
+                            dic_result[index_random[index_dic_eval[i][0]]][0] -
+                            dic_result[index_random[index_dic_eval[i][1]]][0])
+    for i in range(0, len(k_value)):
+        k_value[i] = (dic_result[index_random[index_dic[i][0]]][1] - dic_result[index_random[index_dic[i][1]]][1]) / (
+                dic_result[index_random[index_dic[i][0]]][0] - dic_result[index_random[index_dic[i][1]]][0])
+    potential_result={}
+    for i in range(len(k_value)):
+        for j in range(len(k_eval)):
+            if k_eval[j]==k_value[i]:
+                return
+
+    return
+
+
+def judge2line(k1, k2):
+    return

@@ -1,5 +1,24 @@
 import numpy as np
 
+
+def txt_to_matrix_optimization(filename):
+    file = open(filename)
+    lines = file.readlines()
+    rows = len(lines)  # 文件行数
+    datamat = np.zeros((rows, 2))  # 初始化矩阵
+    row = 0
+    for line in lines:
+        line = line.strip().split(',')  # strip()默认移除字符串首尾空格或换行符
+        datamat[row, :] = line
+        row += 1
+    x = np.ndarray([])
+    y = np.ndarray([])
+    for i in range(len(datamat)):
+        x = np.append(x, datamat[i][0])
+        y = np.append(y, datamat[i][1])
+    return datamat, x, y
+
+
 def txt_to_matrix_speed_time(filename):
     file = open(filename)
     lines = file.readlines()
@@ -24,13 +43,13 @@ def txt_to_matrix_feature(filename):
     time = np.zeros((rows, 1))
     for line in lines:
         line = line.strip().split(',')  # strip()默认移除字符串首尾空格或换行符
-        #print(line)
-        #print(line[0])
+        # print(line)
+        # print(line[0])
         datamat[row, :] = line[0]
         time[row, :] = line[1]
         row += 1
     # print(time)
-    return datamat,time
+    return datamat, time
 
 
 def txt_to_matrix_DAQ_RPI(filename, time_flag=True):
