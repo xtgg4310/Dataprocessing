@@ -14,8 +14,8 @@ if __name__ == '__main__':
     # ax1 = Axes3D(fig)
     # fig2, ax = plt.subplots(subplot_kw={"projection": "3d"})
     Sonar = sl.sonar(0, 0, 0, np.pi * 180 / 180, np.pi / 180, 40, current_angle=0)
-    start = point.point(-3.5, 18.5, 4.8)
-    end = point.point(-4, 19, 5)
+    start = point.point(-3.5, 18.5, 5)
+    end = point.point(-4, 18, 4.7)
 
     start1 = point.point(-5, 10, -np.sqrt(155))
     end1 = point.point(18, 16, -12)
@@ -78,7 +78,7 @@ if __name__ == '__main__':
 
     time2 = time.time()
     print(time2 - time1)
-    threshold = [0.99, 0.97, 0.95, 0.95, 0.95, 0.6]
+    threshold = [0.99, 0.97, 0.95, 0.90, 0.8, 0.6]
     filer_count = 0
     while filer_count < 6:
         x_temp = np.zeros(len(dic_result))
@@ -98,11 +98,11 @@ if __name__ == '__main__':
         for i in range(len(x_temp)):
             if value_temp[i] > threshold[filer_count]:
                 dic_result.update({index: [x_temp[i], y_temp[i], value_temp[i]]})
-                if filer_count == 1:
+                if filer_count == 4:
                     plt.scatter(x_temp[i], y_temp[i], color='blue')
                 index += 1
         print(len(dic_result))
-        if filer_count == 1:
+        if filer_count == 4:
             plt.scatter(4.8, 5, color="green")
             plt.xlabel("h_start")
             plt.ylabel("h_end")

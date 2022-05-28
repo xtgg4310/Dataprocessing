@@ -38,7 +38,16 @@ def get_pointfromsurface(scan_rotate_result):
     point_set_temp = {}
     point_index = 0
     if result[0] == 0 or result[0] == len(scan_rotate_result):
-        aaa = 0
+        if result[0] == 0:
+            for i in range(len(scan_rotate_result)):
+                point_set_temp.update({point_index: [scan_rotate_result[i][0][0],
+                                                     scan_rotate_result[i][1][0]]})
+                point_index += 1
+        else:
+            for i in range(len(scan_rotate_result)):
+                point_set_temp.update({point_index: [scan_rotate_result[i][0][len(scan_rotate_result[i][0]) - 1],
+                                                     scan_rotate_result[i][1][0]]})
+                point_index += 1
     else:
         for i in range(result[0]):
             point_set_temp.update({point_index: [scan_rotate_result[i][0][0],
@@ -49,3 +58,6 @@ def get_pointfromsurface(scan_rotate_result):
             point_set_temp.update({point_index: [scan_rotate_result[i][0][0],
                                                  scan_rotate_result[i][1][0]]})
             point_index += 1
+
+def generate_points(point_set):
+    return

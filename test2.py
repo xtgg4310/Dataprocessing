@@ -25,7 +25,7 @@ if __name__ == '__main__':
     print(x)
     Sonar = sl.sonar(0, 0, 0, np.pi * 180 / 180, np.pi / 180, 40, current_angle=0)
     Sonar1 = sl.sonar(1, 0, 1, np.pi * 180 / 180, np.pi / 180, 40, current_angle=0)
-    start = point.point(-3, 8, 1.7)
+    start = point.point(-3, 8, 1)
     end = point.point(-4, 12, 2)
 
     theta_target = (end.theta - start.theta) / 3 + start.theta
@@ -38,6 +38,29 @@ if __name__ == '__main__':
     Sonar.scaning_result_simple(line_target)
     scan_result = Sonar.get_result()
     result = {}
+    op.set_global_parameter(scan_result[0].theta,
+                            scan_result[len(scan_result) - 1].theta,
+                            scan_result[0].r,
+                            scan_result[len(scan_result) - 1].r, scan_result,
+                            np.pi / 2)
+
+    h_min_1 = op.h_start_min
+    h_max_1 = op.h_start_max
+    h_min_2 = op.h_end_min
+    h_max_2 = op.h_end_max
+    h1 = np.linspace(0, 3, 10000)
+    print(len(h1))
+    count = 0
+    while count < 10:
+        k = np.random.uniform(0.1, 2)
+        value = np.array([0] * len(h1))
+        for i in range(len(h1)):
+            h2 = k * h1[i] + 2 - k
+            value[i] = op.function_to_target(h1[i], h2)
+        plt.plot(h1, value)
+        plt.show()
+        plt.close()
+        count += 1
     index = 0
     while index < 10:
         optimizer_re, optimizer_record = op.optimizer_line_pose(scan_result[0].theta,
