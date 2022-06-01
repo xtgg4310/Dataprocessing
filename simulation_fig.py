@@ -81,6 +81,7 @@ if __name__ == '__main__':
                 x, y, z = sl.list_position_ndarray(dic[j])
                 ax1.plot3D(x, y, z, "orange", alpha=0.05)
 
+
     '''
     line_target1 = sl.Line(start1, end1, 1000)
     Sonar.clear_result()

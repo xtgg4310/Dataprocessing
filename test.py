@@ -1,13 +1,10 @@
-import random
 import time
-import simulation as sl
-import point
 import numpy as np
 from matplotlib import pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-import signal_process as sg
 import optimizer as op
-from matplotlib import cm
+import point
+import simulation as sl
+import signal_process as sg
 
 if __name__ == '__main__':
     # fig = plt.figure()
@@ -15,27 +12,7 @@ if __name__ == '__main__':
     # fig2, ax = plt.subplots(subplot_kw={"projection": "3d"})
     Sonar = sl.sonar(0, 0, 0, np.pi * 180 / 180, np.pi / 180, 40, current_angle=0)
     start = point.point(-3.5, 18.5, 5)
-    end = point.point(-4, 18, 4.7)
-
-    start1 = point.point(-5, 10, -np.sqrt(155))
-    end1 = point.point(18, 16, -12)
-
-    start2 = point.point(-4, 8, -np.sqrt(200))
-    end2 = point.point(18, 16, -12)
-
-    start3 = point.point(-3, 6, -np.sqrt(235))
-    end3 = point.point(18, 16, -12)
-
-    start4 = point.point(-2, 4, -np.sqrt(260))
-    end4 = point.point(18, 16, -12)
-
-    dis_array = [start.r, end.r, start1.r, end1.r, start2.r, end2.r, start3.r, end3.r, start4.r, end4.r]
-    dis = np.max(dis_array)
-    theta_target = (end.theta - start.theta) / 3 + start.theta
-    theta_target1 = (end.theta - start.theta) * 2 / 3 + start.theta
-    height = [-1.2, -0.8, -0.3, 0, 0.2, 0.4, 0.6, 0.8, 1]
-    height_end = [-1.2, -0.8, -0.3, 0, 0.2, 0.4, 0.6, 0.8, 1]
-    dis1 = [0] * len(height)
+    end = point.point(-4, 18, 4.3)
 
     line_target = sl.Line(start, end, 1000)
     Sonar.scaning_result_simple(line_target)
@@ -55,18 +32,56 @@ if __name__ == '__main__':
     # print(x[50], y[50])
     time1 = time.time()
     count = 0
-    x = np.linspace(h_min_1, h_max_1, 101)
-    y = np.linspace(h_min_2, h_max_2, 101)
+    x = np.linspace(h_min_1, h_max_1, 401)
+    y = np.linspace(h_min_2, h_max_2, 401)
     x1, y1 = np.meshgrid(x, y)
-    value = np.zeros((len(x), len(y)))
 
+    value_dic = {}
+    for i in range(len(x)):
+        for j in range(len(y)):
+            # if op.function_to_target(x1[i][j], y1[i][j]) > -0.001:
+            value_dic.update({i * 401 + j: op.function_to_target(x1[i][j], y1[i][j])})
+    sort_value = sorted(value_dic.items(), key=lambda i: i[1], reverse=True)
+    count = 0
+    for key in sort_value:
+        if count == 20:
+            break
+        else:
+            print("h_1:", x1[int(np.floor(key[0] / 401))][key[0] % 401], "       h_2:",
+                  y1[int(np.floor(key[0] / 401))][key[0] % 401], "       value:", key[1],
+                  "       grad_x-:", (key[1] - op.function_to_target(x1[int(np.floor(key[0] / 401))][key[0] % 401 - 1],
+                                                              y1[int(np.floor(key[0] / 401))][key[0] % 401])) / (
+                              x1[int(np.floor(key[0] / 401))][key[0] % 401] - x1[int(np.floor(key[0] / 401))][
+                          key[0] % 401 - 1]),
+                  "       grad_x+:", (key[1] - op.function_to_target(x1[int(np.floor(key[0] / 401))][key[0] % 401 + 1],
+                                                              y1[int(np.floor(key[0] / 401))][key[0] % 401])) / (
+                              x1[int(np.floor(key[0] / 401))][key[0] % 401] - x1[int(np.floor(key[0] / 401))][
+                          key[0] % 401 + 1]),
+                  "       grad_y-:", (key[1] - op.function_to_target(x1[int(np.floor(key[0] / 401))][key[0] % 401],
+                                                              y1[int(np.floor(key[0] / 401)) - 1][key[0] % 401])) / (
+                              y1[int(np.floor(key[0] / 401))][key[0] % 401] - y1[int(np.floor(key[0] / 401)) - 1][
+                          key[0] % 401]),
+                  "       grad_y+:", (key[1] - op.function_to_target(x1[int(np.floor(key[0] / 401))][key[0] % 401],
+                                                              y1[int(np.floor(key[0] / 401)) + 1][key[0] % 401])) / (
+                              y1[int(np.floor(key[0] / 401))][key[0] % 401] - y1[int(np.floor(key[0] / 401)) + 1][
+                          key[0] % 401])
+                  )
+            count += 1
+    print(op.function_to_target(5, 4.3))
+
+    '''
+    value = np.zeros((len(x), len(y)))
+    
     for i in range(len(x)):
         for j in range(len(y)):
             value[i][j] = op.function_to_target(x1[i][j], y1[i][j])
 
     value = np.array(value)
     value = (value - np.min(value)) / (np.max(value) - np.min(value))
-
+    index_max = np.argmax(value)
+    x_max = int(np.floor(index_max / 401))
+    y_max = index_max % 401
+    print(np.max(value), value[x_max][y_max])
     dic_result = {}
     result_index = 0
 
@@ -78,7 +93,7 @@ if __name__ == '__main__':
 
     time2 = time.time()
     print(time2 - time1)
-    threshold = [0.99, 0.97, 0.95, 0.90, 0.8, 0.6]
+    threshold = [0.99, 0.97, 0.95, 0.93, 0.9, 0.7]
     filer_count = 0
     while filer_count < 6:
         x_temp = np.zeros(len(dic_result))
@@ -98,20 +113,20 @@ if __name__ == '__main__':
         for i in range(len(x_temp)):
             if value_temp[i] > threshold[filer_count]:
                 dic_result.update({index: [x_temp[i], y_temp[i], value_temp[i]]})
-                if filer_count == 4:
+                if filer_count == 1:
                     plt.scatter(x_temp[i], y_temp[i], color='blue')
                 index += 1
         print(len(dic_result))
-        if filer_count == 4:
-            plt.scatter(4.8, 5, color="green")
+        if filer_count == 1:
+            plt.scatter(5, 4.6, color="green")
             plt.xlabel("h_start")
             plt.ylabel("h_end")
             plt.show()
-        if 30 <= len(dic_result) < 100:
+        if 30 <= len(dic_result) < 60:
             break
         filer_count += 1
-
-        # print(op.function_to_target(0, 4))
+    '''
+    # print(op.function_to_target(0, 4))
     # result = {}
     # index = 0
     # while index < 30:
@@ -151,6 +166,26 @@ if __name__ == '__main__':
         count += 1
     plt.legend()
     plt.show()
+    
+    start1 = point.point(-5, 10, -np.sqrt(155))
+    end1 = point.point(18, 16, -12)
+
+    start2 = point.point(-4, 8, -np.sqrt(200))
+    end2 = point.point(18, 16, -12)
+
+    start3 = point.point(-3, 6, -np.sqrt(235))
+    end3 = point.point(18, 16, -12)
+
+    start4 = point.point(-2, 4, -np.sqrt(260))
+    end4 = point.point(18, 16, -12)
+
+    dis_array = [start.r, end.r, start1.r, end1.r, start2.r, end2.r, start3.r, end3.r, start4.r, end4.r]
+    dis = np.max(dis_array)
+    theta_target = (end.theta - start.theta) / 3 + start.theta
+    theta_target1 = (end.theta - start.theta) * 2 / 3 + start.theta
+    height = [-1.2, -0.8, -0.3, 0, 0.2, 0.4, 0.6, 0.8, 1]
+    height_end = [-1.2, -0.8, -0.3, 0, 0.2, 0.4, 0.6, 0.8, 1]
+    dis1 = [0] * len(height)
     
     line_target = sl.Line(start, end, 1000)
     Sonar.scaning_result_simple(line_target)

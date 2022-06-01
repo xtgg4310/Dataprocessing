@@ -1,18 +1,15 @@
-import random
-from scipy.signal import stft
-import numpy as np
-import matplotlib.pyplot as plt
-from scipy.fftpack import fft
-from scipy import signal
-from neurodsp import timefrequency as tfq
 import math
+import random
+import matplotlib.pyplot as plt
+import numpy as np
+from neurodsp import timefrequency as tfq
+from scipy import signal
 from scipy import stats as st
-from filterpy.kalman import KalmanFilter as klmf
-from scipy.signal import hilbert as hlb
+from scipy.fftpack import fft
 from scipy.fftpack import ifft
+from scipy.signal import hilbert as hlb
+from scipy.signal import stft
 import point
-import simulation as sl
-from bayes_opt import bayesian_optimization
 
 path_for = r"C:\Users\Enigma_2020\Hou Haozheng Dropbox\Hou Haozheng\PC\Desktop\fig\220425_breath_motion"
 
@@ -956,38 +953,7 @@ def search_theta_ground_truth(point_set, theta_target):
         return -1
 
 
-def divide_two_pointset(dic_result):
-    index_dic = {}
-    index_dic_eval = {}
-    index_dic.update({0: [0, 1]})
-    index_dic.update({1: [0, 2]})
-    index_dic.update({2: [1, 2]})
-    index_dic.update({3: [0, 3]})
-    index_dic.update({4: [1, 3]})
-    index_dic.update({5: [2, 3]})
-    index_dic_eval.update({0: [0, 4]})
-    index_dic_eval.update({1: [1, 4]})
-    index_dic_eval.update({2: [2, 4]})
-    index_dic_eval.update({3: [3, 4]})
-    k_value = np.array([0] * 6)
-    k_eval = np.array([0] * 4)
-    index_random = np.array(random.sample(dic_result.keys(), 5))
-    for i in range(0, len(k_eval)):
-        k_eval[i] = (dic_result[index_random[index_dic_eval[i][0]]][1] - dic_result[index_random[index_dic_eval[i][1]]][
-            1]) / (
-                            dic_result[index_random[index_dic_eval[i][0]]][0] -
-                            dic_result[index_random[index_dic_eval[i][1]]][0])
-    for i in range(0, len(k_value)):
-        k_value[i] = (dic_result[index_random[index_dic[i][0]]][1] - dic_result[index_random[index_dic[i][1]]][1]) / (
-                dic_result[index_random[index_dic[i][0]]][0] - dic_result[index_random[index_dic[i][1]]][0])
-    potential_result={}
-    for i in range(len(k_value)):
-        for j in range(len(k_eval)):
-            if k_eval[j]==k_value[i]:
-                return
-
-    return
-
-
-def judge2line(k1, k2):
+def judge2line(k):
+    k1, k2 = k
+    print(k1, k2)
     return

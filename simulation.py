@@ -1,7 +1,5 @@
 import math
 import numpy as np
-from matplotlib import pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 import point
 
 
@@ -139,8 +137,6 @@ class sonar:
             else:
                 continue
         theta_result = np.array([self.current_angle, self.next_angle])
-
-        # print(theta_result)
         if len(result) == 0:
             result = []
         else:
