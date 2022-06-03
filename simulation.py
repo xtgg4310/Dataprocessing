@@ -50,6 +50,11 @@ class Line:
     def get_length(self):
         return self.length
 
+    def clear_line(self):
+        self.point_dic.clear()
+        self.min_dis_origin = np.inf
+        self.min_dis_origin_theta = 0
+
     def line_point(self):
         inter_x = (self.end.x - self.start.x) / (self.resolution + 1)
         inter_y = (self.end.y - self.start.y) / (self.resolution + 1)
@@ -63,6 +68,49 @@ class Line:
             if last_dis != self.min_dis_origin:
                 self.min_dis_origin_theta = temp.theta
         self.point_dic.update({self.resolution + 1: self.end})
+
+    def move_line(self, direction, distance, x_s=0, y_s=0, z_s=0, x_e=0, y_e=0, z_e=0):
+        print(self.start.x, self.start.y, self.start.z, self.end.x, self.end.y, self.end.z)
+        if direction == 'up':
+            self.start.change_xyz(0, 0, distance)
+            self.end.change_xyz(0, 0, distance)
+        elif direction == 'down':
+            self.start.change_xyz(0, 0, -1 * distance)
+            self.end.change_xyz(0, 0, -1 * distance)
+        elif direction == 'left':
+            self.start.change_xyz(-1 * distance, 0, 0)
+            self.end.change_xyz(-1 * distance, 0, 0)
+        elif direction == 'right':
+            self.start.change_xyz(distance, 0, 0)
+            self.end.change_xyz(distance, 0, 0)
+        elif direction == 'near':
+            self.start.change_xyz(0, -1 * distance, 0)
+            self.end.change_xyz(0, -1 * distance, 0)
+        elif direction == 'away':
+            self.start.change_xyz(0, distance, 0)
+            self.end.change_xyz(0, distance, 0)
+        else:
+            z_change = math.sin(self.fai_line) * distance
+            x_change = math.cos(self.theta_line) * math.cos(self.fai_line) * distance
+            y_change = math.cos(self.fai_line) * distance * math.sin(self.theta_line)
+            if direction == 'forward':
+                self.start.change_xyz(x_change, y_change, z_change)
+                self.end.change_xyz(x_change, y_change, z_change)
+                print(z_change, x_change, y_change)
+            elif direction == 'backward':
+                self.start.change_xyz(-1 * x_change, -1 * y_change, -1 * z_change)
+                self.end.change_xyz(-1 * x_change, -1 * y_change, -1 * z_change)
+            else:
+                self.start.change_xyz(x_s, y_s, z_s)
+                self.end.change_xyz(x_e, y_e, z_e)
+                # print(z_change, x_change, y_change)
+        # print(self.start.x, self.start.y, self.start.z, self.end.x, self.end.y, self.end.z)
+        self.clear_line()
+        self.length = math.sqrt(
+            (self.end.x - self.start.x) ** 2 + (self.end.y - self.start.y) ** 2 + (self.end.z - self.start.z) ** 2)
+        self.line_point()
+        self.theta_line = math.atan2(self.end.y - self.start.y, self.end.x - self.start.x)
+        self.fai_line = math.asin((self.end.z - self.start.z) / self.length)
 
 
 class sonar:
@@ -228,3 +276,41 @@ def real_fai2relate_fai(point, x, y, z):
     relate_z = point.z - z
     fai = math.asin(relate_z / dis_relate)
     return fai
+
+
+def move_line(start, end, line, direction, distance, x_s=0, y_s=0, z_s=0, x_e=0, y_e=0, z_e=0):
+    print(start.x, start.y, start.z, end.x, end.y, end.z)
+    if direction == 'up':
+        start.change_xyz(0, 0, distance)
+        end.change_xyz(0, 0, distance)
+    elif direction == 'down':
+        start.change_xyz(0, 0, -1 * distance)
+        end.change_xyz(0, 0, -1 * distance)
+    elif direction == 'left':
+        start.change_xyz(-1 * distance, 0, 0)
+        end.change_xyz(-1 * distance, 0, 0)
+    elif direction == 'right':
+        start.change_xyz(distance, 0, 0)
+        end.change_xyz(distance, 0, 0)
+    elif direction == 'near':
+        start.change_xyz(0, -1 * distance, 0)
+        end.change_xyz(0, -1 * distance, 0)
+    elif direction == 'away':
+        start.change_xyz(0, distance, 0)
+        end.change_xyz(0, distance, 0)
+    else:
+        z_change = math.sin(line.fai_line) * distance
+        x_change = math.cos(line.theta_line) * math.cos(line.fai_line) * distance
+        y_change = math.cos(line.fai_line) * distance * math.sin(line.theta_line)
+        if direction == 'forward':
+            start.change_xyz(x_change, y_change, z_change)
+            end.change_xyz(x_change, y_change, z_change)
+            print(z_change, x_change, y_change)
+        elif direction == 'backward':
+            start.change_xyz(-1 * x_change, -1 * y_change, -1 * z_change)
+            end.change_xyz(-1 * x_change, -1 * y_change, -1 * z_change)
+        else:
+            start.change_xyz(x_s, y_s, z_s)
+            end.change_xyz(x_e, y_e, z_e)
+            # print(z_change, x_change, y_change)
+        # print(self.start.x, self.start.y, self.start.z, self.end.x, self.end.y, self.end.z)

@@ -6,7 +6,7 @@ import simulation as sl
 from sko.PSO import PSO
 from sko.SA import SA
 from sko.GA import GA
-
+import torch
 theta_1 = 0
 theta_2 = 0
 theta_3 = 0
@@ -168,7 +168,7 @@ def function_to_target(h_1, h_2):
     return -1 * ((abs(dis_1 - target_dis_1) + abs(
         dis_2 - target_dis_2) + abs(dis_3 - target_dis_3) + abs(dis_4 - target_dis_4) + abs(
         dis_5 - target_dis_5) + abs(dis_6 - target_dis_6) + abs(
-        dis_7 - target_dis_7) + abs(dis_8 - target_dis_8) + abs(dis_9 - target_dis_9)) * 100) ** 2
+        dis_7 - target_dis_7) + abs(dis_8 - target_dis_8) + abs(dis_9 - target_dis_9)) * 100)
 
 
 def function_to_target_2(h_1, h_2):
@@ -229,7 +229,7 @@ def function_to_target_3(h_1, h_2):
 
 def function_to_target_for_sko(h):
     h_1, h_2 = h
-    return function_to_target(h_1, h_2)
+    return -1*function_to_target(h_1, h_2)
 
 
 def optimizer_line_pose(start_theta, end_theta, dis1, dis2, scan, vertical_angle, sonar=None, flag=False):
@@ -253,9 +253,11 @@ def optimizer_line_pose(start_theta, end_theta, dis1, dis2, scan, vertical_angle
 
 def optimizer_particle_swarm_line_pose(start_theta, end_theta, dis1, dis2, scan, vertical_angle, sonar=None,
                                        flag=False):
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     set_global_parameter(start_theta, end_theta, dis1, dis2, scan, vertical_angle, sonar, flag)
-    optimizer_pso = PSO(func=function_to_target_for_sko, n_dim=2, pop=50, max_iter=200, lb=lb, ub=ls, w=0.8, c1=0.5,
-                        c2=0.5)
+    optimizer_pso = PSO(func=function_to_target_for_sko, n_dim=2, pop=200, max_iter=1000, lb=lb, ub=ls, w=0.8, c1=0.8,
+                        c2=0.8)
+
     optimizer_pso.run()
     return optimizer_pso.best_x, optimizer_pso.best_y
 
@@ -272,8 +274,10 @@ def optimizer_annel_line_pose(start_theta, end_theta, dis1, dis2, scan, vertical
 
 def optimizer_genetic_line_pose(start_theta, end_theta, dis1, dis2, scan, vertical_angle, sonar=None, flag=False):
     set_global_parameter(start_theta, end_theta, dis1, dis2, scan, vertical_angle, sonar, flag)
-    optimizer_GA = GA(func=function_to_target_for_sko, n_dim=2, size_pop=50, max_iter=800, prob_mut=0.001, lb=lb, ub=ls,
+    optimizer_GA = GA(func=function_to_target_for_sko, n_dim=2, size_pop=200, max_iter=2000, prob_mut=0.01, lb=lb, ub=ls,
                       precision=1e-7)
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    optimizer_GA.to(device)
     best_x, best_y = optimizer_GA.run()
     return best_x, best_y
 

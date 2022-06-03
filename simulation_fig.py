@@ -11,9 +11,9 @@ if __name__ == '__main__':
     fig = plt.figure()
     ax1 = Axes3D(fig)
 
-    Sonar = sl.sonar(1, 0, 1, np.pi * 180 / 180, np.pi / 180, 40, current_angle=0)
-    start = point.point(-4, 2, 3)
-    end = point.point(-2, 5, -2)
+    Sonar = sl.sonar(0, 0, 0, np.pi * 180 / 180, np.pi / 180, 40, current_angle=0)
+    start = point.point(-0.5, 2, 3)
+    end = point.point(0.5, 2.8, 2.3)
 
     start1 = point.point(-4, 2, 3.808)
     end1 = point.point(-2, -5, 2.472)
@@ -57,30 +57,37 @@ if __name__ == '__main__':
     plt.legend()
     plt.show()
     '''
-    line_target = sl.Line(start, end, 1000)
-    Sonar.scaning_result_simple(line_target)
-    target = line_target.get_point()
-
-    re = Sonar.get_result()
-    x_t, y_t, z_t = sl.list_position_ndarray(target)
-    x_r, y_r, z_r = sl.list_position_ndarray(re)
-
+    count = 0
+    dis_change = 0.5
+    direction = 'forward'
     ax1.scatter3D(Sonar.x, Sonar.y, Sonar.z, color="blue")
-    ax1.plot3D(x_t, y_t, z_t, label="0_yellow_orange", color="yellow")
-    ax1.plot3D(x_r, y_r, z_r, "green")
-    result = Sonar.scan_line(line_target, np.pi)
-    # for i in range(len(result)):
-    #    if len(result[i][0]) != 0:
-    # print(result[i][0][0])
+    line_target = sl.Line(start, end, 1000)
+    color1 = ["yellow", "purple", "lightgreen", "black", "tan"]
+    color2 = ["orange", "red", "green", "grey", "blue"]
+    while count < 5:
+        Sonar.scaning_result_simple(line_target)
+        target = line_target.get_point()
 
-    if len(result) != 0:
-        for i in range(len(result)):
-            dic = sl.surface_point(result[i][0], result[i][1], Sonar)
-            for j in range(len(dic)):
-                print(result[i][1], len(dic))
-                x, y, z = sl.list_position_ndarray(dic[j])
-                ax1.plot3D(x, y, z, "orange", alpha=0.05)
+        re = Sonar.get_result()
+        x_t, y_t, z_t = sl.list_position_ndarray(target)
+        x_r, y_r, z_r = sl.list_position_ndarray(re)
 
+        ax1.plot3D(x_t, y_t, z_t, color=color1[count])
+        ax1.plot3D(x_r, y_r, z_r, color=color2[count])
+        result = Sonar.scan_line(line_target, np.pi)
+        # for i in range(len(result)):
+        #    if len(result[i][0]) != 0:
+        # print(result[i][0][0])
+
+        # if len(result) != 0:
+        #    for i in range(len(result)):
+        #        dic = sl.surface_point(result[i][0], result[i][1], Sonar)
+        #        for j in range(len(dic)):
+        # print(result[i][1], len(dic))
+        #            x, y, z = sl.list_position_ndarray(dic[j])
+        #            ax1.plot3D(x, y, z, color="orange", alpha=0.05)
+        line_target.move_line(direction, dis_change)
+        count += 1
 
     '''
     line_target1 = sl.Line(start1, end1, 1000)
@@ -163,4 +170,3 @@ if __name__ == '__main__':
     # Axes3D.set_zlim(ax1, -17, 17)
     plt.legend()
     plt.show()
-

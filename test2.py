@@ -1,3 +1,4 @@
+import random
 import time
 
 import numpy as np
@@ -9,6 +10,8 @@ import point
 import simulation as sl
 
 if __name__ == '__main__':
+    a = random.randint(1, 10)
+    print(a)
     # data, x, y = txt2matrix.txt_to_matrix_optimization(
     #    r"C:\Users\Enigma_2020\Desktop\sonar_simulation\record_test_-4,2,3_-2,8,-2_20_200_0.8.txt")
 
@@ -25,7 +28,7 @@ if __name__ == '__main__':
     Sonar = sl.sonar(0, 0, 0, np.pi * 180 / 180, np.pi / 180, 40, current_angle=0)
     Sonar1 = sl.sonar(1, 0, 1, np.pi * 180 / 180, np.pi / 180, 40, current_angle=0)
     start = point.point(-3, 8, 1)
-    end = point.point(-4, 9, 1.5)
+    end = point.point(4, 5, 4)
 
     theta_target = (end.theta - start.theta) / 3 + start.theta
     theta_target1 = (end.theta - start.theta) * 2 / 3 + start.theta
@@ -36,13 +39,13 @@ if __name__ == '__main__':
     line_target = sl.Line(start, end, 1000)
     Sonar.scaning_result_simple(line_target)
     scan_result = Sonar.get_result()
-    # target = line_target.get_point()
-    '''
+    target = line_target.get_point()
+
     re = Sonar.get_result()
     x_t, y_t, z_t = sl.list_position_ndarray(target)
     x_r, y_r, z_r = sl.list_position_ndarray(re)
     ax1.scatter3D(Sonar.x, Sonar.y, Sonar.z, color="blue")
-    ax1.plot3D(x_t, y_t, z_t, label="4", color="yellow")
+    ax1.plot3D(x_t, y_t, z_t, label="0", color="yellow")
     ax1.plot3D(x_r, y_r, z_r, "green")
     result = Sonar.scan_line(line_target, np.pi)
 
@@ -145,6 +148,7 @@ if __name__ == '__main__':
             break
         filer_count += 1
 
+    '''
     '''
     index = 0
     while index < 10:
