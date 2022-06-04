@@ -72,8 +72,7 @@ if __name__ == '__main__':
             for i in range(len(x)):
                 for j in range(len(y)):
                     value[i][j] = op.function_to_target(x1[i][j], y1[i][j])
-                    print(value[i][j])
-                    if value[i][j] > -10:
+                    if value[i][j] > -90:
                         dic_result.update({index: [x1[i][j], y1[i][j]]})
 
             for i in range(len(dic_result)):
@@ -91,7 +90,7 @@ if __name__ == '__main__':
             plt.ylim(h_min_2, h_max_2)
             plt.legend()
             plt.savefig(
-                r"C:\Users\Enigma_2020\Desktop\simulation_fig\fig_area" + direction[index_direction] + "_" + str(
+                r"C:\Users\Enigma_2020\Desktop\simulation_fig\fig_area_" + direction[index_direction] + "_" + str(
                     test_total_count) + "_" + str(test_count) + ".jpg")
             fp.writelines(
                 str(line_target.start.x) + "," + str(line_target.start.y) + "," + str(
