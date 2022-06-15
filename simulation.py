@@ -136,7 +136,7 @@ class sonar:
     def get_sonar_position(self):
         return self.x, self.y, self.z
 
-    def target2result(self, target):
+    def target2result(self, target):#绝对坐标
         dis = math.sqrt((target.x - self.x) ** 2 + (target.y - self.y) ** 2 + (target.z - self.z) ** 2)
         if target.x != self.x:
             k = np.abs((target.y - self.y) / (target.x - self.x))

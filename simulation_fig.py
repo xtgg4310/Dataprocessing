@@ -12,8 +12,8 @@ if __name__ == '__main__':
     ax1 = Axes3D(fig)
 
     Sonar = sl.sonar(0, 0, 0, np.pi * 180 / 180, np.pi / 180, 40, current_angle=0)
-    start = point.point(-0.5, 2, 3)
-    end = point.point(0.5, 2.8, 2.3)
+    start = point.point(-3.5, 18.5, 5)
+    end = point.point(4, 18, -4.3)
 
     start1 = point.point(-4, 2, 3.808)
     end1 = point.point(-2, -5, 2.472)
@@ -64,7 +64,7 @@ if __name__ == '__main__':
     line_target = sl.Line(start, end, 1000)
     color1 = ["yellow", "purple", "lightgreen", "black", "tan"]
     color2 = ["orange", "red", "green", "grey", "blue"]
-    while count < 5:
+    while count < 1:
         Sonar.scaning_result_simple(line_target)
         target = line_target.get_point()
 
@@ -168,5 +168,5 @@ if __name__ == '__main__':
     # Axes3D.set_xlim(ax1, -20, 20)
     # Axes3D.set_ylim(ax1, 7.0, 13)
     # Axes3D.set_zlim(ax1, -17, 17)
-    plt.legend()
+    #plt.legend()
     plt.show()

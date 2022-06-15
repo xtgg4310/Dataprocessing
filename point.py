@@ -11,12 +11,12 @@ class point:
         self.theta = 0
         self.fai = 0
         self.convert_xyz_r()
-        self.sonar_x = sonar_x
-        self.sonar_y = sonar_y
-        self.sonar_z = sonar_z
-        self.sonar_r = np.sqrt(self.sonar_x ** 2 + self.sonar_y ** 2 + self.sonar_z ** 2)
-        self.sonar_theta = math.atan2(self.sonar_y, self.sonar_x)
-        #self.sonar_fai = math.asin(self.sonar_z / self.sonar_r)
+        self.sonar_x = x
+        self.sonar_y = y
+        self.sonar_z = z
+        self.sonar_r = self.r
+        self.sonar_theta = self.theta
+        # self.sonar_fai = math.asin(self.sonar_z / self.sonar_r)
 
     def show_xyz_position(self):
         print(self.x, self.y, self.z)
@@ -36,7 +36,7 @@ class point:
         self.sonar_z = self.z - sonar.z
         self.sonar_r = np.sqrt(self.sonar_x ** 2 + self.sonar_y ** 2 + self.sonar_z ** 2)
         self.sonar_theta = math.atan2(self.sonar_y, self.sonar_x)
-        #self.sonar_fai = math.asin(self.sonar_z / self.sonar_r)
+        # self.sonar_fai = math.asin(self.sonar_z / self.sonar_r)
 
     def convert_xyz_r(self):
         self.r = np.sqrt(self.x ** 2 + self.y ** 2 + self.z ** 2)

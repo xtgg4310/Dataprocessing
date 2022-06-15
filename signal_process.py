@@ -916,6 +916,7 @@ def x_y_cal(height, theta, dis):
         flag = 1
     else:
         flag = -1
+    # print(dis, height)
     x = flag * np.sqrt(dis ** 2 - height ** 2) / (np.sqrt(1 + k ** 2))
     y = k * x
     return x, y
@@ -934,26 +935,78 @@ def search_sonar_line_min_dis_theta(x, y, x_1, y_1, z, z_1, target_theta_1):
         x_min_1 = (y - A * x) / (k_1 - A)
         z_min_1 = B * (x_min_1 - x) + z
         y_min_1 = k_1 * x_min_1
+    # target_1 = point.point(x_min_1+sonar.x, y_min_1+sonar.y, z_min_1+sonar.z).r
+
     target_1 = point.point(x_min_1, y_min_1, z_min_1).r
     return target_1
 
 
-def search_theta_ground_truth(point_set, theta_target):
+def search_theta_ground_truth(point_set, theta_target, sonar=None, Flag=False):
     for i in range(len(point_set) - 1):
-        if (point_set[i].theta - theta_target) * (point_set[i + 1].theta - theta_target) <= 0:
-            if point_set[i].theta == theta_target:
-                return point_set[i].r, point_set[i].theta
-            elif point_set[i + 1].theta == theta_target:
-                return point_set[i + 1].r, point_set[i + 1].theta
+        if Flag:
+            point_set[i].sonar_axis_convert(sonar)
+            ##print(point_set[i].sonar_theta)
+        if (point_set[i].sonar_theta - theta_target) * (point_set[i + 1].sonar_theta - theta_target) <= 0:
+            if point_set[i].sonar_theta == theta_target:
+                return point_set[i].sonar_r, point_set[i].sonar_theta
+            elif point_set[i + 1].sonar_theta == theta_target:
+                return point_set[i + 1].sonar_r, point_set[i + 1].sonar_theta
             else:
-                return point_set[i].r, point_set[i].theta
-    if point_set[len(point_set) - 1].theta == theta_target:
-        return point_set[len(point_set) - 1].r, point_set[len(point_set) - 1].theta
+                return point_set[i].sonar_r, point_set[i].sonar_theta
+    if Flag:
+        point_set[len(point_set) - 1].sonar_axis_convert(sonar)
+    # print(point_set[0].sonar_theta, point_set[len(point_set) - 1].sonar_theta)
+    if point_set[len(point_set) - 1].sonar_theta == theta_target:
+        return point_set[len(point_set) - 1].sonar_r, point_set[len(point_set) - 1].sonar_theta
     else:
         return -1
 
 
-def judge2line(k):
-    k1, k2 = k
-    print(k1, k2)
-    return
+def check_length(x, y, z, x1, y1, z1, threshold_low, threshold_high):
+    real_len = np.sqrt((x - x1) ** 2 + (y - y1) ** 2 + (z - z1) ** 2)
+    if real_len < threshold_low or real_len > threshold_high:
+        return False
+    else:
+        return True
+
+
+def point_set_cross(dataset, dataset2):
+    target_dataset = np.array([])
+    for i in range(len(dataset)):
+        x_temp = dataset[i][0]
+        y_temp = dataset[i][1]
+        value_temp = dataset[i][2]
+        for j in range(len(dataset2)):
+            x_temp_2 = dataset2[j][0]
+            y_temp_2 = dataset2[j][1]
+            if np.sqrt((x_temp - x_temp_2) ** 2 + (y_temp - y_temp_2) ** 2) <= 0.015:
+                target_dataset = np.append(target_dataset, [x_temp, y_temp, value_temp])
+                break
+
+    len_target_set = len(target_dataset)
+    for i in range(len(dataset2)):
+        x_temp_2 = dataset2[i][0]
+        y_temp_2 = dataset2[i][1]
+        value_temp_2 = dataset2[i][2]
+        for j in range(len_target_set):
+            print(target_dataset[j][0])
+            if np.sqrt((x_temp_2 - target_dataset[j][0]) ** 2 + (y_temp_2 - target_dataset[j][1]) ** 2) <= 0.015:
+                target_dataset = np.append(target_dataset, [x_temp_2, y_temp_2, value_temp_2])
+                break
+
+    result = sorted(target_dataset, key=lambda x: (x[0], x[1]))
+    return result
+
+
+def weight_recalculate(result):
+    sum_weight = 0
+    for i in range(len(result)):
+        sum_weight += result[i][2]
+    x_sum = 0
+    y_sum = 0
+    for i in range(len(result)):
+        x_sum += result[i][2] * result[i][0] / sum_weight
+        y_sum += result[i][2] * result[i][1] / sum_weight
+    x_sum /= len(result)
+    y_sum /= len(result)
+    return x_sum, y_sum

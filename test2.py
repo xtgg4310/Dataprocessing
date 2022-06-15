@@ -9,9 +9,22 @@ import optimizer as op
 import point
 import simulation as sl
 
+
+def K_zx(x, y):
+    return (2 * np.cos(x) - np.cos(y)) / (1.8 * np.sin(x) - 0.7 * np.cos(y))
+
+
+def A_zk(x, y):
+    return (1.4 * np.sin(y) * np.cos(x) - 1.8 * np.sin(x) * np.cos(y)) / (1.8 * np.sin(x) - 0.7 * np.cos(y))
+
+
+def function_k_A(x, y):
+    return np.sqrt((K_zx(x, y)) ** 2 + 2 * K_zx(x, y) * A_zk(x, y) + A_zk(x, y) ** 2 + 10)
+
+
 if __name__ == '__main__':
-    a = random.randint(1, 10)
-    print(a)
+    # a = random.randint(1, 10)
+    # print(a)
     # data, x, y = txt2matrix.txt_to_matrix_optimization(
     #    r"C:\Users\Enigma_2020\Desktop\sonar_simulation\record_test_-4,2,3_-2,8,-2_20_200_0.8.txt")
 
@@ -20,60 +33,60 @@ if __name__ == '__main__':
     # plt.scatter(-3, 2, color='yellow')
     # plt.grid()
     # plt.show()
-    # fig = plt.figure()
-    # ax1 = Axes3D(fig)
     fig = plt.figure()
     ax1 = Axes3D(fig)
 
+    x_1 = np.linspace(0, np.pi, 300)
+    y_1 = np.linspace(0, np.pi, 300)
+    x, y = np.meshgrid(x_1, y_1)
+    z = np.zeros((len(x_1), len(y_1)))
+    for i in range(len(x_1)):
+        for j in range(len(y_1)):
+            z[i][j] = function_k_A(x[i][j], y[i][j])
+            if z[i][j]>1000:
+                z[i][j]=1000
+    ax1.plot_surface(x, y, z)
+    plt.show()
+    '''
     Sonar = sl.sonar(0, 0, 0, np.pi * 180 / 180, np.pi / 180, 40, current_angle=0)
     Sonar1 = sl.sonar(1, 0, 1, np.pi * 180 / 180, np.pi / 180, 40, current_angle=0)
-    start = point.point(-3, 8, 1)
-    end = point.point(4, 5, 4)
-
-    theta_target = (end.theta - start.theta) / 3 + start.theta
-    theta_target1 = (end.theta - start.theta) * 2 / 3 + start.theta
-    height = [-1.2, -0.8, -0.3, 0, 0.2, 0.4, 0.6, 0.8, 1]
-    height_end = [-1.2, -0.8, -0.3, 0, 0.2, 0.4, 0.6, 0.8, 1]
-    dis1 = [0] * len(height)
+    start = point.point(-1.974015767970707, 5.806383687370714, 0.8454659008490583)
+    end = point.point(-0.14024426907606635, 4.410684022700307, 0.7704260625197861)
 
     line_target = sl.Line(start, end, 1000)
-    Sonar.scaning_result_simple(line_target)
-    scan_result = Sonar.get_result()
-    target = line_target.get_point()
+    Sonar1.scaning_result_simple(line_target)
+    scan_result2 = Sonar1.get_result()
+    scan_result2[0].sonar_axis_convert(Sonar1)
+    scan_result2[len(scan_result2) - 1].sonar_axis_convert(Sonar1)
+    op.set_global_parameter2(scan_result2[0].sonar_theta, scan_result2[len(scan_result2) - 1].sonar_theta,
+                             scan_result2[0].sonar_r, scan_result2[len(scan_result2) - 1].sonar_r, scan_result2,
+                             np.pi * 2 / 3, Sonar1, True)
+    x_2 = np.linspace(op.h_min_2[0], op.h_max_2[0], 201)
+    print(op.h_min_2[0], op.h_max_2[0])
+    print(op.h_min_2[1], op.h_max_2[1])
+    y_2 = np.linspace(op.h_min_2[1], op.h_max_2[1], 201)
+    x2, y2 = np.meshgrid(x_2, y_2)
+    value2 = np.zeros((len(x_2), len(y_2)))
+    dic_result2 = {}
+    index_2 = 0
+    for i in range(len(x_2)):
+        for j in range(len(y_2)):
+            value2[i][j] = op.function_to_target_sonar2(x2[i][j], y2[i][j])
+            # print(value2[i][j])
+            if value2[i][j] > -5:
+                print(x2[i][j], y2[i][j])
+                dic_result2.update({index_2: [x2[i][j], y2[i][j]]})
+                index_2 += 1
+    # print(op.function_to_target_sonar2(line_target.start.z, line_target.end.z))
 
-    re = Sonar.get_result()
-    x_t, y_t, z_t = sl.list_position_ndarray(target)
-    x_r, y_r, z_r = sl.list_position_ndarray(re)
-    ax1.scatter3D(Sonar.x, Sonar.y, Sonar.z, color="blue")
-    ax1.plot3D(x_t, y_t, z_t, label="0", color="yellow")
-    ax1.plot3D(x_r, y_r, z_r, "green")
-    result = Sonar.scan_line(line_target, np.pi)
-
-    if len(result) != 0:
-        for i in range(len(result)):
-            dic = sl.surface_point(result[i][0], result[i][1], sonar=Sonar)
-            for j in range(len(dic)):
-                x, y, z = sl.list_position_ndarray(dic[j])
-                ax1.plot3D(x, y, z, "orange", alpha=0.01)
-    line_target1 = sl.Line(start, end, 1000)
-    Sonar1.clear_result()
-    Sonar1.scaning_result_simple(line_target1)
-    target1 = line_target1.get_point()
-    result1 = Sonar1.get_result()
-    x_t, y_t, z_t = sl.list_position_ndarray(target1)
-    x_r, y_r, z_r = sl.list_position_ndarray(result1)
-    ax1.scatter3D(Sonar1.x, Sonar1.y, Sonar1.z, color="lightgreen")
-    ax1.plot3D(x_t, y_t, z_t, label="1", color="purple")
-    ax1.plot3D(x_r, y_r, z_r, "blue")
-    result1 = Sonar1.scan_line(line_target1, np.pi)
-
-    if len(result1) != 0:
-        for i in range(len(result1)):
-            dic = sl.surface_point(result1[i][0], result1[i][1], sonar=Sonar1)
-            for j in range(len(dic)):
-                x, y, z = sl.list_position_ndarray(dic[j])
-                ax1.plot3D(x, y, z, "red", alpha=0.01)
+    for i in range(len(dic_result2)):
+        plt.scatter(dic_result2[i][0], dic_result2[i][1],color="blue")
+    if line_target.start.z >= 0:
+        plt.scatter(line_target.start.z, line_target.end.z, color="red")
+    else:
+        plt.scatter(-1 * line_target.start.z, -1 * line_target.end.z, color="red")
     plt.show()
+    '''
     '''
     result = {}
     op.set_global_parameter(scan_result[0].theta,

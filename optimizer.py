@@ -7,6 +7,8 @@ from sko.PSO import PSO
 from sko.SA import SA
 from sko.GA import GA
 import torch
+import copy
+
 theta_1 = 0
 theta_2 = 0
 theta_3 = 0
@@ -47,6 +49,14 @@ start_theta_re = 0
 end_theta_re = 0
 lb = [0, 0]
 ls = [0, 0]
+theta = []
+r = []
+target_dis = []
+h_min_2 = []
+h_max_2 = []
+start_theta_re2 = 0
+end_theta_re2 = 0
+sonar2 = sl.sonar(1, 0, 1, np.pi * 180 / 180, np.pi / 180, 40, current_angle=0)
 
 
 def set_global_parameter(start_theta, end_theta, dis1, dis2, scan, vertical_angle, sonar=None, Flag=False):
@@ -99,10 +109,10 @@ def set_global_parameter(start_theta, end_theta, dis1, dis2, scan, vertical_angl
     theta_3 = (end_theta - start_theta) * 50 / 180 + start_theta
     theta_4 = (end_theta - start_theta) * 70 / 180 + start_theta
     theta_5 = (end_theta - start_theta) * 90 / 180 + start_theta
-    theta_6 = (end_theta - start_theta) * 110 / 180 + start_theta
-    theta_7 = (end_theta - start_theta) * 130 / 180 + start_theta
-    theta_8 = (end_theta - start_theta) * 150 / 180 + start_theta
-    theta_9 = (end_theta - start_theta) * 170 / 180 + start_theta
+    theta_6 = (end_theta - start_theta) * 100 / 180 + start_theta
+    theta_7 = (end_theta - start_theta) * 120 / 180 + start_theta
+    theta_8 = (end_theta - start_theta) * 140 / 180 + start_theta
+    theta_9 = (end_theta - start_theta) * 160 / 180 + start_theta
     theta2_1 = (end_theta - start_theta) * 35 / 180 + start_theta
     theta2_2 = (end_theta - start_theta) * 60 / 180 + start_theta
     theta2_3 = (end_theta - start_theta) * 90 / 180 + start_theta
@@ -133,6 +143,72 @@ def set_global_parameter(start_theta, end_theta, dis1, dis2, scan, vertical_angl
     target2_dis_5, theta2_5 = sg.search_theta_ground_truth(scan, theta2_5)
 
 
+def set_global_parameter2(start_theta, end_theta, dis1, dis2, scan, vertical_angle, sonar, Flag=False):
+    global theta
+    global r
+    global target_dis
+    global h_min_2
+    global h_max_2
+    global start_theta_re2
+    global end_theta_re2
+    global sonar2
+    start_theta_re2 = start_theta
+    end_theta_re2 = end_theta
+    # print(start_theta_re2, end_theta_re2)
+    theta = np.zeros(9)
+    r = np.zeros(2)
+    target_dis = np.zeros(9)
+    h_min_2 = np.zeros(2)
+    h_max_2 = np.zeros(2)
+    sonar2 = copy.deepcopy(sonar)
+    if Flag:
+        for i in range(len(scan)):
+            scan[i].sonar_axis_convert(sonar)
+    theta[0] = (end_theta - start_theta) * 20 / 180 + start_theta
+    theta[1] = (end_theta - start_theta) * 40 / 180 + start_theta
+    theta[2] = (end_theta - start_theta) * 50 / 180 + start_theta
+    theta[3] = (end_theta - start_theta) * 70 / 180 + start_theta
+    theta[4] = (end_theta - start_theta) * 90 / 180 + start_theta
+    theta[5] = (end_theta - start_theta) * 100 / 180 + start_theta
+    theta[6] = (end_theta - start_theta) * 120 / 180 + start_theta
+    theta[7] = (end_theta - start_theta) * 140 / 180 + start_theta
+    theta[8] = (end_theta - start_theta) * 160 / 180 + start_theta
+    r[0] = dis1
+    r[1] = dis2
+    h_min_2[0] = 1
+    h_min_2[1] = -r[1] * np.sin(vertical_angle / 2) + sonar2.z
+    h_max_2[0] = r[0] * np.sin(vertical_angle / 2) + sonar2.z
+    h_max_2[1] = r[1] * np.sin(vertical_angle / 2) + sonar2.z
+    print(h_min_2, h_max_2)
+    for i in range(9):
+        target_dis[i], theta[i] = sg.search_theta_ground_truth(scan, theta[i], sonar2, True)
+
+
+def function_to_target_sonar2(h_1, h_2):
+    global theta
+    global r
+    global target_dis
+    global start_theta_re2
+    global end_theta_re2
+    global sonar2
+
+    h_1 = h_1 - sonar2.z
+    h_2 = h_2 - sonar2.z
+
+    x = np.zeros(2)
+    y = np.zeros(2)
+    x[0], y[0] = sg.x_y_cal(h_1, start_theta_re2, r[0])
+
+    x[1], y[1] = sg.x_y_cal(h_2, end_theta_re2, r[1])
+
+    diff_sonar2 = np.zeros(9)
+    for i in range(9):
+        diff_sonar2[i] = abs(
+            sg.search_sonar_line_min_dis_theta(x[0], y[0], x[1], y[1], h_1, h_2, theta[i]) - target_dis[
+                i])
+    return -1 * (np.sum(diff_sonar2) * 100)
+
+
 def function_to_target(h_1, h_2):
     global theta_1
     global theta_2
@@ -152,6 +228,8 @@ def function_to_target(h_1, h_2):
     global target_dis_5
     global target_dis_6
     global target_dis_7
+    global target_dis_8
+    global target_dis_9
     global start_theta_re
     global end_theta_re
     x_1, y_1 = sg.x_y_cal(h_1, start_theta_re, r_1)
@@ -229,7 +307,49 @@ def function_to_target_3(h_1, h_2):
 
 def function_to_target_for_sko(h):
     h_1, h_2 = h
-    return -1*function_to_target(h_1, h_2)
+    return -1 * function_to_target(h_1, h_2)
+
+
+def function_to_target_var(h_1, h_2):
+    global theta_1
+    global theta_2
+    global theta_3
+    global theta_4
+    global theta_5
+    global theta_6
+    global theta_7
+    global theta_8
+    global theta_9
+    global r_1
+    global r_2
+    global target_dis_1
+    global target_dis_2
+    global target_dis_3
+    global target_dis_4
+    global target_dis_5
+    global target_dis_6
+    global target_dis_7
+    global start_theta_re
+    global end_theta_re
+    x_1, y_1 = sg.x_y_cal(h_1, start_theta_re, r_1)
+    x_2, y_2 = sg.x_y_cal(h_2, end_theta_re, r_2)
+    dis_1 = sg.search_sonar_line_min_dis_theta(x_1, y_1, x_2, y_2, h_1, h_2, theta_1)
+    dis_2 = sg.search_sonar_line_min_dis_theta(x_1, y_1, x_2, y_2, h_1, h_2, theta_2)
+    dis_3 = sg.search_sonar_line_min_dis_theta(x_1, y_1, x_2, y_2, h_1, h_2, theta_3)
+    dis_4 = sg.search_sonar_line_min_dis_theta(x_1, y_1, x_2, y_2, h_1, h_2, theta_4)
+    dis_5 = sg.search_sonar_line_min_dis_theta(x_1, y_1, x_2, y_2, h_1, h_2, theta_5)
+    dis_6 = sg.search_sonar_line_min_dis_theta(x_1, y_1, x_2, y_2, h_1, h_2, theta_6)
+    dis_7 = sg.search_sonar_line_min_dis_theta(x_1, y_1, x_2, y_2, h_1, h_2, theta_7)
+    dis_8 = sg.search_sonar_line_min_dis_theta(x_1, y_1, x_2, y_2, h_1, h_2, theta_8)
+    dis_9 = sg.search_sonar_line_min_dis_theta(x_1, y_1, x_2, y_2, h_1, h_2, theta_9)
+    diff = [abs(dis_1 - target_dis_1), abs(dis_2 - target_dis_2), abs(dis_3 - target_dis_3), abs(dis_4 - target_dis_4),
+            abs(dis_5 - target_dis_5), abs(dis_6 - target_dis_6), abs(dis_7 - target_dis_7), abs(dis_8 - target_dis_8),
+            abs(dis_9 - target_dis_9)]
+    diff = np.array(diff)
+    return -1 * ((abs(dis_1 - target_dis_1) + abs(
+        dis_2 - target_dis_2) + abs(dis_3 - target_dis_3) + abs(dis_4 - target_dis_4) + abs(
+        dis_5 - target_dis_5) + abs(dis_6 - target_dis_6) + abs(
+        dis_7 - target_dis_7) + abs(dis_8 - target_dis_8) + abs(dis_9 - target_dis_9)) * 100) - np.var(diff)
 
 
 def optimizer_line_pose(start_theta, end_theta, dis1, dis2, scan, vertical_angle, sonar=None, flag=False):
@@ -237,17 +357,16 @@ def optimizer_line_pose(start_theta, end_theta, dis1, dis2, scan, vertical_angle
     set_global_parameter(start_theta, end_theta, dis1, dis2, scan, vertical_angle, sonar, flag)
     # print(pbounds)
     optimizer = BayesianOptimization(
-        f=function_to_target,
+        f=function_to_target_3,
         pbounds=pbounds,
         random_state=None
     )
     optimizer.maximize(
-        init_points=10,
+        init_points=20,
         n_iter=200,
+        # acq='ucb',
         kappa=1,
     )
-    print(function_to_target(1, 1.5))
-    print(function_to_target(optimizer.max['params']['h_1'], optimizer.max['params']['h_2']))
     return optimizer.max, optimizer.res
 
 
@@ -274,7 +393,8 @@ def optimizer_annel_line_pose(start_theta, end_theta, dis1, dis2, scan, vertical
 
 def optimizer_genetic_line_pose(start_theta, end_theta, dis1, dis2, scan, vertical_angle, sonar=None, flag=False):
     set_global_parameter(start_theta, end_theta, dis1, dis2, scan, vertical_angle, sonar, flag)
-    optimizer_GA = GA(func=function_to_target_for_sko, n_dim=2, size_pop=200, max_iter=2000, prob_mut=0.01, lb=lb, ub=ls,
+    optimizer_GA = GA(func=function_to_target_for_sko, n_dim=2, size_pop=200, max_iter=2000, prob_mut=0.01, lb=lb,
+                      ub=ls,
                       precision=1e-7)
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     optimizer_GA.to(device)

@@ -15,6 +15,7 @@ if __name__ == '__main__':
     # fig2, ax = plt.subplots(subplot_kw={"projection": "3d"})
 
     Sonar = sl.sonar(0, 0, 0, np.pi * 180 / 180, np.pi / 180, 40, current_angle=0)
+    Sonar1 = sl.sonar(1, 0, 1, np.pi * 180 / 180, np.pi / 180, 40, current_angle=0)
     test_count = 0
     rate = np.zeros(3)
     rate_acc = np.zeros(3)
@@ -23,13 +24,18 @@ if __name__ == '__main__':
     direction = ["up", "down", "left", "right", "near", "away", "forward", "backward"]
     color = ["yellowgreen", "plum", "lightgreen", "lightgrey", "wheat", "cyan", "salmon", "peachpuff",
              "lightpink", "lightblue"]
+    color_2 = ["gold", "darkviolet", "limegreen", "dimgrey", "burlywood", "teal", "tomato", "linen", "deeppink",
+               "dodgerblue"]
     color1 = ["yellow", "purple", "green", "black", "tan", "darkcyan", "red", "peru", "deeppink", "blue"]
     distance = 0.3
 
-    while test_total_count < 20:
-        fp = open(r"C:\Users\Enigma_2020\Desktop\simulation_fig\ground_truth_" + str(test_total_count) + ".txt", "w")
+    while test_total_count < 1:
+        fp = open(
+            r"C:\Users\Enigma_2020\Desktop\simulation_fig_sonar_201_10\ground_truth_" + str(test_total_count) + ".txt",
+            "w")
         test_count = 0
         Sonar.clear_result()
+        Sonar1.clear_result()
         x1 = random.uniform(-5, 5)
         x2 = random.uniform(-5, 5)
         while x1 == x2:
@@ -39,58 +45,108 @@ if __name__ == '__main__':
         while y1 == y2:
             y2 = random.uniform(2, 8)
         z1 = random.uniform(0,
-                            np.sqrt(x1 ** 2 + y1 ** 2) * np.tan(np.pi / 8))
-        z2 = random.uniform(-np.sqrt(x2 ** 2 + y2 ** 2) * np.tan(np.pi / 8),
-                            np.sqrt(x2 ** 2 + y2 ** 2) * np.tan(np.pi / 8))
+                            min(np.sqrt(x1 ** 2 + y1 ** 2) * np.tan(np.pi / 8),
+                                np.sqrt((x1 - Sonar1.x) ** 2 + (y1 - Sonar1.y) ** 2) * np.tan(np.pi / 8) + Sonar1.z))
+        z2 = random.uniform(max(-np.sqrt(x2 ** 2 + y2 ** 2) * np.tan(np.pi / 8),
+                                -1 * np.sqrt((x2 - Sonar1.x) ** 2 + (y2 - Sonar1.y) ** 2) * np.tan(
+                                    np.pi / 8) + Sonar1.z),
+                            min(np.sqrt(x2 ** 2 + y2 ** 2) * np.tan(np.pi / 8),
+                                np.sqrt((x2 - Sonar1.x) ** 2 + (y2 - Sonar1.y) ** 2) * np.tan(np.pi / 8) + Sonar1.z))
         while z1 == z2:
-            z2 = random.uniform(-np.sqrt(x2 ** 2 + y2 ** 2) * np.tan(np.pi / 8),
-                                np.sqrt(x2 ** 2 + y2 ** 2) * np.tan(np.pi / 8))
+            z2 = random.uniform(max(-np.sqrt(x2 ** 2 + y2 ** 2) * np.tan(np.pi / 8),
+                                    -1 * np.sqrt((x2 - Sonar1.x) ** 2 + (y2 - Sonar1.y) ** 2) * np.tan(
+                                        np.pi / 8) + Sonar1.z),
+                                min(np.sqrt(x2 ** 2 + y2 ** 2) * np.tan(np.pi / 8),
+                                    np.sqrt((x2 - Sonar1.x) ** 2 + (y2 - Sonar1.y) ** 2) * np.tan(
+                                        np.pi / 8) + Sonar1.z))
         start = point.point(x1, y1, z1)
         end = point.point(x2, y2, z2)
+        print(x1, y1, z1)
+        print(x2, y2, z2)
         line_target = sl.Line(start, end, 1000)
         index_direction = random.randint(0, len(direction) - 1)
-        while test_count < 10:
+        while test_count < 1:
             print(test_total_count, test_count)
             Sonar.scaning_result_simple(line_target)
+            Sonar1.scaning_result_simple(line_target)
             scan_result = Sonar.get_result()
+            scan_result2 = Sonar1.get_result()
             op.set_global_parameter(scan_result[0].theta,
                                     scan_result[len(scan_result) - 1].theta,
                                     scan_result[0].r,
                                     scan_result[len(scan_result) - 1].r, scan_result,
                                     np.pi * 2 / 3)
-
+            scan_result2[0].sonar_axis_convert(Sonar1)
+            scan_result2[len(scan_result2) - 1].sonar_axis_convert(Sonar1)
+            # print(scan_result2[0].x, scan_result2[0].y, scan_result2[0].z, scan_result2[0].theta) print(
+            # scan_result2[0].sonar_x, scan_result2[0].sonar_y, scan_result2[0].sonar_z, scan_result2[0].sonar_theta)
+            op.set_global_parameter2(scan_result2[0].sonar_theta, scan_result2[len(scan_result2) - 1].sonar_theta,
+                                     scan_result2[0].sonar_r, scan_result2[len(scan_result2) - 1].sonar_r, scan_result2,
+                                     np.pi * 2 / 3, Sonar1, True)
             h_min_1 = op.h_start_min
             h_max_1 = op.h_start_max
             h_min_2 = op.h_end_min
             h_max_2 = op.h_end_max
-            x = np.linspace(h_min_1, h_max_1, 401)
-            y = np.linspace(h_min_2, h_max_2, 401)
+            x = np.linspace(h_min_1, h_max_1, 201)
+            y = np.linspace(h_min_2, h_max_2, 201)
+            x_2 = np.linspace(op.h_min_2[0], op.h_max_2[0], 201)
+            y_2 = np.linspace(op.h_min_2[1], op.h_max_2[1], 201)
             x1, y1 = np.meshgrid(x, y)
+            x2, y2 = np.meshgrid(x_2, y_2)
             value = np.zeros((len(x), len(y)))
+            value2 = np.zeros((len(x_2), len(y_2)))
             dic_result = {}
+            dic_result2 = {}
             index = 0
+            index_2 = 0
+
             for i in range(len(x)):
                 for j in range(len(y)):
                     value[i][j] = op.function_to_target(x1[i][j], y1[i][j])
-                    if value[i][j] > -90:
-                        dic_result.update({index: [x1[i][j], y1[i][j]]})
+                    if value[i][j] > -10:
+                        dic_result.update({index: [x1[i][j], y1[i][j], value[i][j]]})
+                        # print(value[i][j])
+                        index += 1
+            for i in range(len(x_2)):
+                for j in range(len(y_2)):
+                    value2[i][j] = op.function_to_target_sonar2(x2[i][j], y2[i][j])
+                    # print(value2[i][j])
+                    if value2[i][j] > -10:
+                        dic_result2.update({index_2: [x2[i][j], y2[i][j], value2[i][j]]})
+                        index_2 += 1
+            print("groud_truth:", op.function_to_target(line_target.start.z, line_target.end.z))
+            print("groud_truth2:", op.function_to_target_sonar2(line_target.start.z, line_target.end.z))
+            cross_set = sg.point_set_cross(dic_result, dic_result2)
+            x_weight, y_weight = sg.weight_recalculate(cross_set)
+            # for i in range(len(x)):
+            #    for j in range(len(y)):
+            #        print(value[i][j])
+            print(len(dic_result), len(dic_result2))
 
             for i in range(len(dic_result)):
-                plt.scatter(dic_result[i][0], dic_result[i][1], color=color[test_count])
-
+                plt.scatter(dic_result[i][0], dic_result[i][1], color=color[test_count], alpha=0.2)
+            for i in range(len(dic_result2)):
+                plt.scatter(dic_result2[i][0], dic_result2[i][1], color=color_2[test_count], alpha=0.1)
+            for i in range(len(cross_set)):
+                plt.scatter(cross_set[i][0], cross_set[i][1], color="black", alpha=0.3)
             if line_target.start.z >= 0:
                 plt.scatter(line_target.start.z, line_target.end.z, color=color1[test_count],
                             label=str(test_count) + "_truth")
             else:
                 plt.scatter(-1 * line_target.start.z, -1 * line_target.end.z, color=color1[test_count],
                             label=str(test_count) + "_truth")
+            if line_target.start.z >= 1:
+                plt.scatter(line_target.start.z, line_target.end.z, color=color1[test_count])
+            else:
+                plt.scatter(2 - line_target.start.z, 2 - line_target.end.z, color=color1[test_count])
             plt.xlabel('h_1')
             plt.ylabel('h_2')
-            plt.xlim(h_min_1, h_max_1)
-            plt.ylim(h_min_2, h_max_2)
+            plt.xlim(min(h_min_1, op.h_min_2[0]), max(h_max_1, op.h_max_2[0]))
+            plt.ylim(min(h_min_2, op.h_min_2[1]), max(h_max_2, op.h_max_2[1]))
             plt.legend()
             plt.savefig(
-                r"C:\Users\Enigma_2020\Desktop\simulation_fig\fig_area_" + direction[index_direction] + "_" + str(
+                r"C:\Users\Enigma_2020\Desktop\simulation_fig_sonar_201_10\fig_area_" + direction[
+                    index_direction] + "_" + str(
                     test_total_count) + "_" + str(test_count) + ".jpg")
             fp.writelines(
                 str(line_target.start.x) + "," + str(line_target.start.y) + "," + str(
@@ -104,7 +160,7 @@ if __name__ == '__main__':
         plt.ylabel('h_2')
         plt.legend()
         plt.savefig(
-            r"C:\Users\Enigma_2020\Desktop\simulation_fig\fig_" + direction[index_direction] + "_" + str(
+            r"C:\Users\Enigma_2020\Desktop\simulation_fig_sonar_201_10\fig_" + direction[index_direction] + "_" + str(
                 test_total_count) + ".jpg")
         plt.close()
         test_total_count += 1
