@@ -970,8 +970,9 @@ def check_length(x, y, z, x1, y1, z1, threshold_low, threshold_high):
         return True
 
 
-def point_set_cross(dataset, dataset2):
+def point_set_cross(dataset, dataset2, resolv=0.015):
     target_dataset = np.array([])
+    flag = False
     for i in range(len(dataset)):
         x_temp = dataset[i][0]
         y_temp = dataset[i][1]
@@ -979,21 +980,27 @@ def point_set_cross(dataset, dataset2):
         for j in range(len(dataset2)):
             x_temp_2 = dataset2[j][0]
             y_temp_2 = dataset2[j][1]
-            if np.sqrt((x_temp - x_temp_2) ** 2 + (y_temp - y_temp_2) ** 2) <= 0.015:
-                target_dataset = np.append(target_dataset, [x_temp, y_temp, value_temp])
+            if np.sqrt((x_temp - x_temp_2) ** 2 + (y_temp - y_temp_2) ** 2) <= resolv:
+                if not flag:
+                    target_dataset = np.array([[x_temp, y_temp, value_temp]])
+                    flag = True
+                else:
+                    target_dataset = np.append(target_dataset, np.array([[x_temp, y_temp, value_temp]]), axis=0)
+                # print(target_dataset)
                 break
 
     len_target_set = len(target_dataset)
+    #print(len_target_set)
     for i in range(len(dataset2)):
         x_temp_2 = dataset2[i][0]
         y_temp_2 = dataset2[i][1]
         value_temp_2 = dataset2[i][2]
         for j in range(len_target_set):
-            print(target_dataset[j][0])
-            if np.sqrt((x_temp_2 - target_dataset[j][0]) ** 2 + (y_temp_2 - target_dataset[j][1]) ** 2) <= 0.015:
-                target_dataset = np.append(target_dataset, [x_temp_2, y_temp_2, value_temp_2])
+            # print(i, j, target_dataset[j][1])
+            if np.sqrt((x_temp_2 - target_dataset[j][0]) ** 2 + (y_temp_2 - target_dataset[j][1]) ** 2) <= resolv:
+                target_dataset = np.append(target_dataset, np.array([[x_temp_2, y_temp_2, value_temp_2]]), axis=0)
                 break
-
+    #print(len(target_dataset))
     result = sorted(target_dataset, key=lambda x: (x[0], x[1]))
     return result
 
@@ -1005,8 +1012,8 @@ def weight_recalculate(result):
     x_sum = 0
     y_sum = 0
     for i in range(len(result)):
-        x_sum += result[i][2] * result[i][0] / sum_weight
-        y_sum += result[i][2] * result[i][1] / sum_weight
-    x_sum /= len(result)
-    y_sum /= len(result)
+        x_sum += (result[i][0] * result[i][2])/sum_weight
+        y_sum += (result[i][1] * result[i][2])/sum_weight
+    #x_sum /= len(result)
+    #y_sum /= len(result)
     return x_sum, y_sum

@@ -129,6 +129,7 @@ class sonar:
         self.beam_angle = angle_scan
         self.next_angle = angle_scan + self.current_angle
         self.resolution = self.range * 0.08
+        self.mode = "y+"
 
     def get_result(self):
         return self.scan_result
@@ -136,7 +137,7 @@ class sonar:
     def get_sonar_position(self):
         return self.x, self.y, self.z
 
-    def target2result(self, target):#绝对坐标
+    def target2result(self, target):  # 绝对坐标
         dis = math.sqrt((target.x - self.x) ** 2 + (target.y - self.y) ** 2 + (target.z - self.z) ** 2)
         if target.x != self.x:
             k = np.abs((target.y - self.y) / (target.x - self.x))
@@ -279,7 +280,7 @@ def real_fai2relate_fai(point, x, y, z):
 
 
 def move_line(start, end, line, direction, distance, x_s=0, y_s=0, z_s=0, x_e=0, y_e=0, z_e=0):
-    print(start.x, start.y, start.z, end.x, end.y, end.z)
+    # print(start.x, start.y, start.z, end.x, end.y, end.z)
     if direction == 'up':
         start.change_xyz(0, 0, distance)
         end.change_xyz(0, 0, distance)

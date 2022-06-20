@@ -28,11 +28,10 @@ if __name__ == '__main__':
                "dodgerblue"]
     color1 = ["yellow", "purple", "green", "black", "tan", "darkcyan", "red", "peru", "deeppink", "blue"]
     distance = 0.3
-    error = [0] * 2000
-    error_record = np.array([])
-    while test_total_count < 2000:
+    error = [0] * 100
+    while test_total_count < 100:
         fp = open(
-            r"C:\Users\Enigma_2020\Desktop\simulation_result\ground_truth_top100_401_" + str(test_total_count) + ".txt",
+            r"C:\Users\Enigma_2020\Desktop\simulation_result\ground_truth_401_" + str(test_total_count) + ".txt",
             "w")
         test_count = 0
         Sonar.clear_result()
@@ -103,46 +102,33 @@ if __name__ == '__main__':
         x2, y2 = np.meshgrid(x_2, y_2)
         value = np.zeros((len(x), len(y)))
         value2 = np.zeros((len(x_2), len(y_2)))
-        dic_result = np.array([[]])
-        dic_result2 = np.array([[]])
-        flag = False
-
+        dic_result = {}
+        dic_result2 = {}
+        index = 0
+        index_2 = 0
         resolve_1 = 2 * h_max_2 / 401
         resolve_2 = (op.h_max_2[1] - op.h_min_2[1]) / 401
         for i in range(len(x)):
             for j in range(len(y)):
                 value[i][j] = op.function_to_target(x1[i][j], y1[i][j])
-                if value[i][j] > -20:
-                    if not flag:
-                        dic_result = np.array([[x1[i][j], y1[i][j], value[i][j]]])
-                        flag = True
-                    else:
-                        dic_result = np.append(dic_result, np.array([[x1[i][j], y1[i][j], value[i][j]]]), axis=0)
+                if value[i][j] > -1:
+                    dic_result.update({index: [x1[i][j], y1[i][j], value[i][j]]})
                     # print(value[i][j])
-
-        flag = False
+                    index += 1
         for i in range(len(x_2)):
             for j in range(len(y_2)):
                 value2[i][j] = op.function_to_target_sonar2(x2[i][j], y2[i][j])
                 # print(value2[i][j])
-                if value2[i][j] > -20:
-                    if not flag:
-                        dic_result2 = np.array([[x2[i][j], y2[i][j], value2[i][j]]])
-                        flag = True
-                    else:
-                        dic_result2 = np.append(dic_result2, np.array([[x2[i][j], y2[i][j], value2[i][j]]]), axis=0)
-
-        dic_result = sorted(dic_result, key=lambda x: x[2], reverse=True)
-        dic_result2 = sorted(dic_result2, key=lambda x: x[2], reverse=True)
-        set_1 = dic_result[0:199]
-        set_2 = dic_result2[0:199]
+                if value2[i][j] > -1:
+                    dic_result2.update({index_2: [x2[i][j], y2[i][j], value2[i][j]]})
+                    index_2 += 1
         # print("groud_truth:", op.function_to_target(line_target.start.z, line_target.end.z))
         # print("groud_truth2:", op.function_to_target_sonar2(line_target.start.z, line_target.end.z))
         # print(max(resolve_1, resolve_2))
-        cross_set = sg.point_set_cross(set_1, set_2, max(resolve_1, resolve_2))
+        cross_set = sg.point_set_cross(dic_result, dic_result2, max(resolve_1, resolve_2))
         x_weight = -np.inf
         y_weight = -np.inf
-        print(test_total_count, len(cross_set), len(set_1), len(set_2))
+        print(test_total_count, len(cross_set), len(dic_result), len(dic_result2))
 
         if len(cross_set) != 0:
             x_weight, y_weight = sg.weight_recalculate(cross_set)
@@ -183,11 +169,5 @@ if __name__ == '__main__':
         error[test_total_count] = error_temp
         test_total_count += 1
         fp.close()
-        if test_total_count == 0:
-            error_record = np.array([error_temp])
-        else:
-            error_record = np.append(error_record, error_temp)
-        if test_total_count % 100 == 0:
-            print(test_total_count, ":", np.mean(error), np.var(error), np.max(error), np.min(error))
     error = np.array(error)
     print(np.mean(error), np.var(error), np.max(error), np.min(error))
