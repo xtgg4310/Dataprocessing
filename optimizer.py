@@ -34,6 +34,16 @@ k_sonar2 = []
 k_sonar1 = []
 diff_k = []
 diff_k_2 = []
+theta_sonar3 = []
+r_3 = []
+target_dis_3 = []
+h_min_3 = []
+h_max_3 = []
+start_theta_re3 = 0
+end_theta_re3 = 0
+sonar3 = sl.sonar(4, 0, 1.5, np.pi * 180 / 180, np.pi / 180, 40, current_angle=0)
+k_sonar3 = []
+diff_k_3 = []
 
 
 def set_global_parameter(start_theta, end_theta, dis1, dis2, scan, vertical_angle, sonar=None, Flag=False):
@@ -102,6 +112,7 @@ def set_global_parameter2(start_theta, end_theta, dis1, dis2, scan, vertical_ang
     h_min_2 = np.zeros(2)
     h_max_2 = np.zeros(2)
     sonar2 = copy.deepcopy(sonar)
+    #(sonar2.x, sonar2.y, sonar2.z)
     if Flag:
         for i in range(len(scan)):
             scan[i].sonar_axis_convert(sonar)
@@ -124,6 +135,52 @@ def set_global_parameter2(start_theta, end_theta, dis1, dis2, scan, vertical_ang
         target_dis[i], theta_sonar2[i] = sg.search_theta_ground_truth(scan, theta_sonar2[i], sonar2, True)
     for i in range(1, 9):
         k_sonar2[i - 1] = (target_dis[i] - target_dis[i - 1]) / (theta_sonar2[i] - theta_sonar2[i - 1])
+
+
+def set_global_parameter3(start_theta, end_theta, dis1, dis2, scan, vertical_angle, sonar, Flag=False):
+    global theta_sonar3
+    global r_3
+    global target_dis_3
+    global h_min_3
+    global h_max_3
+    global start_theta_re3
+    global end_theta_re3
+    global sonar3
+    global k_sonar3
+
+    start_theta_re3 = start_theta
+    end_theta_re3 = end_theta
+    theta_sonar3 = np.zeros(9)
+    r_3 = np.zeros(2)
+    target_dis_3 = np.zeros(9)
+    k_sonar3 = np.zeros(8)
+    h_min_3 = np.zeros(2)
+    h_max_3 = np.zeros(2)
+    sonar3 = copy.deepcopy(sonar)
+    #print(sonar.x, sonar.y, sonar.z)
+    #print(sonar3.x, sonar3.y, sonar3.z)
+    if Flag:
+        for i in range(len(scan)):
+            scan[i].sonar_axis_convert(sonar)
+    theta_sonar3[0] = (end_theta - start_theta) * 20 / 180 + start_theta
+    theta_sonar3[1] = (end_theta - start_theta) * 40 / 180 + start_theta
+    theta_sonar3[2] = (end_theta - start_theta) * 50 / 180 + start_theta
+    theta_sonar3[3] = (end_theta - start_theta) * 70 / 180 + start_theta
+    theta_sonar3[4] = (end_theta - start_theta) * 90 / 180 + start_theta
+    theta_sonar3[5] = (end_theta - start_theta) * 100 / 180 + start_theta
+    theta_sonar3[6] = (end_theta - start_theta) * 120 / 180 + start_theta
+    theta_sonar3[7] = (end_theta - start_theta) * 140 / 180 + start_theta
+    theta_sonar3[8] = (end_theta - start_theta) * 160 / 180 + start_theta
+    r_3[0] = dis1
+    r_3[1] = dis2
+    h_min_3[0] = -r[0] * np.sin(vertical_angle / 2) + sonar3.z
+    h_min_3[1] = -r[1] * np.sin(vertical_angle / 2) + sonar3.z
+    h_max_3[0] = r[0] * np.sin(vertical_angle / 2) + sonar3.z
+    h_max_3[1] = r[1] * np.sin(vertical_angle / 2) + sonar3.z
+    for i in range(9):
+        target_dis_3[i], theta_sonar3[i] = sg.search_theta_ground_truth(scan, theta_sonar3[i], sonar3, True)
+    for i in range(1, 9):
+        k_sonar3[i - 1] = (target_dis_3[i] - target_dis_3[i - 1]) / (theta_sonar3[i] - theta_sonar3[i - 1])
 
 
 def function_to_target_sonar2(h_1, h_2):
@@ -175,6 +232,32 @@ def function_to_target(h_1, h_2):
     return -1 * np.sum(dis1_record) ** 2
 
 
+def function_to_target_sonar3(h_1, h_2):
+    global theta_sonar3
+    global r_3
+    global target_dis_3
+    global start_theta_re3
+    global end_theta_re3
+    global sonar3
+    global diff_k_3
+    h_1 = h_1 - sonar3.z
+    h_2 = h_2 - sonar3.z
+    temp_record_3 = np.zeros(9)
+    diff_k_3 = np.zeros(8)
+    x = np.zeros(2)
+    y = np.zeros(2)
+    x[0], y[0] = sg.x_y_cal(h_1, start_theta_re3, r[0])
+    x[1], y[1] = sg.x_y_cal(h_2, end_theta_re3, r[1])
+    diff_sonar3 = np.zeros(9)
+    for i in range(9):
+        temp_record_3[i] = sg.search_sonar_line_min_dis_theta(x[0], y[0], x[1], y[1], h_1, h_2, theta_sonar3[i])
+        diff_sonar3[i] = abs(temp_record_3[i] - target_dis_3[i]) * 100
+    for i in range(8):
+        diff_k_3[i] = abs(
+            (temp_record_3[i + 1] - temp_record_3[i]) / (theta_sonar3[i + 1] - theta_sonar3[i]) - k_sonar3[i]) * 100
+    return -1 * np.sum(diff_sonar3) ** 2
+
+
 def function_to_target_for_sko(h):
     h_1, h_2 = h
     return -1 * function_to_target(h_1, h_2)
@@ -192,8 +275,23 @@ def function_to_target_sonar2_k(h_1, h_2):
     return loss - np.sum(diff_k_2)
 
 
+def function_to_target_sonar3_k(h_1, h_2):
+    global diff_k_3
+    loss = function_to_target_sonar3(h_1, h_2)
+    return loss - np.sum(diff_k_3)
+
+
 def function_to_target_both_dis(h_1, h_2):
     return function_to_target(h_1, h_2) + function_to_target_sonar2(h_1, h_2)
+
+
+def function_to_target_3_sonar_dis(h_1, h_2):
+    return function_to_target(h_1, h_2) + function_to_target_sonar2(h_1, h_2) + function_to_target_sonar3(h_1, h_2)
+
+
+def function_to_target_3_both(h_1, h_2):
+    return function_to_target_sonar_k(h_1, h_2) + function_to_target_sonar2_k(h_1, h_2) + function_to_target_sonar3_k(
+        h_1, h_2)
 
 
 def function_to_target_both(h_1, h_2):

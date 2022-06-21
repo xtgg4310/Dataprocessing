@@ -43,8 +43,8 @@ if __name__ == '__main__':
     for i in range(len(x_1)):
         for j in range(len(y_1)):
             z[i][j] = function_k_A(x[i][j], y[i][j])
-            if z[i][j]>1000:
-                z[i][j]=1000
+            if z[i][j] > 1000:
+                z[i][j] = 1000
     ax1.plot_surface(x, y, z)
     plt.show()
     '''

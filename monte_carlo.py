@@ -15,7 +15,7 @@ if __name__ == '__main__':
     # fig2, ax = plt.subplots(subplot_kw={"projection": "3d"})
 
     Sonar = sl.sonar(0, 0, 0, np.pi * 180 / 180, np.pi / 180, 40, current_angle=0)
-    Sonar1 = sl.sonar(1, 0, 1, np.pi * 180 / 180, np.pi / 180, 40, current_angle=0)
+    Sonar1 = sl.sonar(-4, 0, 1, np.pi * 180 / 180, np.pi / 180, 40, current_angle=0)
     test_count = 0
     rate = np.zeros(3)
     rate_acc = np.zeros(3)
@@ -31,13 +31,13 @@ if __name__ == '__main__':
 
     while test_total_count < 100:
         fp = open(
-            r"C:\Users\Enigma_2020\Desktop\simulation_fig_2sonar_bothdis\ground_truth_" + str(
+            r"C:\Users\Enigma_2020\Desktop\simulation_fig_2sonar_bothdis\ground_truth_-4_" + str(
                 test_total_count) + ".txt",
             "w")
         test_count = 0
         Sonar.clear_result()
         Sonar1.clear_result()
-        x1 = random.uniform(-5, 5)
+        x1 = random.uniform(-8, 8)
         y1 = random.uniform(2, 8)
         z1 = random.uniform(0,
                             min(np.sqrt(x1 ** 2 + y1 ** 2) * np.tan(np.pi / 8),
@@ -163,7 +163,7 @@ if __name__ == '__main__':
             # plt.legend()
             # plt.show()
             plt.savefig(
-                r"C:\Users\Enigma_2020\Desktop\simulation_fig_2sonar_bothdis\fig_area_" + str(
+                r"C:\Users\Enigma_2020\Desktop\simulation_fig_2sonar_bothdis\fig_area_-4_" + str(
                     test_total_count) + ".jpg")
             plt.close()
             fp.writelines(

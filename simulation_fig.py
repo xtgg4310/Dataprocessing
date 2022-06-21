@@ -74,7 +74,7 @@ if __name__ == '__main__':
 
         ax1.plot3D(x_t, y_t, z_t, color=color1[count])
         ax1.plot3D(x_r, y_r, z_r, color=color2[count])
-        result = Sonar.scan_line(line_target, np.pi)
+        result = Sonar.scan_line(line_target)
         # for i in range(len(result)):
         #    if len(result[i][0]) != 0:
         # print(result[i][0][0])
@@ -99,7 +99,7 @@ if __name__ == '__main__':
     x_r, y_r, z_r = sl.list_position_ndarray(result1)
     ax1.plot3D(x_t, y_t, z_t, label="1_purple_red", color="purple")
     ax1.plot3D(x_r, y_r, z_r, "blue")
-    result1 = Sonar.scan_line(line_target1, np.pi)
+    result1 = Sonar.scan_line(line_target1)
 
     if len(result1) != 0:
         for i in range(len(result1)):
@@ -117,7 +117,7 @@ if __name__ == '__main__':
     x_r, y_r, z_r = sl.list_position_ndarray(result1)
     ax1.plot3D(x_t, y_t, z_t, label="2_blue_cyan", color="blue")
     # ax1.plot3D(x_r, y_r, z_r, "blue")
-    result1 = Sonar.scan_line(line_target2, np.pi)
+    result1 = Sonar.scan_line(line_target2)
 
     if len(result1) != 0:
         for i in range(len(result1)):
@@ -135,7 +135,7 @@ if __name__ == '__main__':
     x_r, y_r, z_r = sl.list_position_ndarray(result1)
     ax1.plot3D(x_t, y_t, z_t, label="3_lightgreen_lime", color="lightgreen")
     # ax1.plot3D(x_r, y_r, z_r, "blue")
-    result1 = Sonar.scan_line(line_target3, np.pi)
+    result1 = Sonar.scan_line(line_target3)
 
     if len(result1) != 0:
         for i in range(len(result1)):
@@ -153,7 +153,7 @@ if __name__ == '__main__':
     x_r, y_r, z_r = sl.list_position_ndarray(result1)
     ax1.plot3D(x_t, y_t, z_t, label="4_tan_grey", color="tan")
     # ax1.plot3D(x_r, y_r, z_r, "blue")
-    result1 = Sonar.scan_line(line_target4, np.pi)
+    result1 = Sonar.scan_line(line_target4)
 
     if len(result1) != 0:
         for i in range(len(result1)):

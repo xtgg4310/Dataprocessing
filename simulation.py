@@ -116,7 +116,7 @@ class Line:
 class sonar:
 
     def __init__(self, x, y, z, vertical=np.pi * 50 / 180, speed=np.pi / 360, range=40, current_angle=0,
-                 angle_scan=np.pi / 180):
+                 angle_scan=np.pi / 180, end_angle=np.pi):
         self.x = x
         self.y = y
         self.z = z
@@ -129,7 +129,7 @@ class sonar:
         self.beam_angle = angle_scan
         self.next_angle = angle_scan + self.current_angle
         self.resolution = self.range * 0.08
-        self.mode = "y+"
+        self.end_angle = end_angle
 
     def get_result(self):
         return self.scan_result
@@ -170,16 +170,20 @@ class sonar:
             temp, _ = self.target2result(target[i])
             self.scan_result.update({i: temp})
 
-    def scan_line_one_time(self, line, angle_range):
+    def scan_line_one_time(self, line):
+        if self.current_angle > self.end_angle:
+            return self.current_angle, self.current_angle, None, None
         result = np.array([])
         point_set = line.get_point()
         theta_record = np.array([])
 
         for i in range(len(point_set)):
             # print(point_set)
-            if self.current_angle <= real_theta2relate_theta(point_set[i], self.x,
-                                                             self.y) <= self.next_angle and -1 * self.vertical_angel / \
-                    2 <= real_fai2relate_fai(point_set[i], self.x, self.y, self.z) <= self.vertical_angel / 2 and \
+            if ((self.current_angle <= real_theta2relate_theta(point_set[i], self.x, self.y) <= self.next_angle) or (
+                    self.current_angle <= (
+                    2 * np.pi + real_theta2relate_theta(point_set[i], self.x, self.y)) <= self.next_angle)) \
+                    and -1 * self.vertical_angel / 2 <= real_fai2relate_fai(point_set[i], self.x, self.y,
+                                                                            self.z) <= self.vertical_angel / 2 and \
                     point_set[i].r <= self.range:
                 _, temp = self.target2result(point_set[i])
                 result = np.append(result, temp)
@@ -191,19 +195,19 @@ class sonar:
         else:
             theta_record.sort()
             result.sort()
-        if self.next_angle + self.speed <= angle_range:
+        if self.next_angle + self.speed <= self.end_angle:
             temp_next = self.next_angle + self.speed
         else:
-            temp_next = angle_range
+            temp_next = self.end_angle
         return self.current_angle + self.speed, temp_next, result, theta_result
 
     def get_scan_result(self):
         return self.scan_rotate_result, self.scan_result
 
-    def scan_line(self, line, angle_range):
+    def scan_line(self, line):
         index = 0
-        while self.current_angle <= angle_range:
-            self.current_angle, self.next_angle, re1, theta_record = self.scan_line_one_time(line, angle_range)
+        while self.current_angle <= self.end_angle:
+            self.current_angle, self.next_angle, re1, theta_record = self.scan_line_one_time(line)
             if re1 == np.array([]):
                 continue
             self.scan_rotate_result.update({index: [re1, theta_record]})

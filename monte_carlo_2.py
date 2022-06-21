@@ -10,25 +10,19 @@ import optimizer as op
 from matplotlib import cm
 
 if __name__ == '__main__':
-    # fig = plt.figure()
-    # ax1 = Axes3D(fig)
+    fig = plt.figure()
+    ax1 = Axes3D(fig)
     # fig2, ax = plt.subplots(subplot_kw={"projection": "3d"})
-
-    Sonar = sl.sonar(0, 0, 0, np.pi * 180 / 180, np.pi / 180, 40, current_angle=0)
+    # fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+    Sonar = sl.sonar(4, 0, 0, np.pi * 180 / 180, np.pi / 180, 40, current_angle=0)
     Sonar1 = sl.sonar(1, 0, 1, np.pi * 180 / 180, np.pi / 180, 40, current_angle=0)
+    Sonar2 = sl.sonar(8, 5, 1, np.pi * 180 / 180, np.pi / 180, 40, current_angle=np.pi / 2, angle_scan=np.pi / 180,
+                      end_angle=np.pi * 3 / 4)
     test_count = 0
     rate = np.zeros(3)
     rate_acc = np.zeros(3)
     test_total_count = 0
-    start_time = time.time()
-    direction = ["up", "down", "left", "right", "near", "away", "forward", "backward"]
-    color = ["yellowgreen", "plum", "lightgreen", "lightgrey", "wheat", "cyan", "salmon", "peachpuff",
-             "lightpink", "lightblue"]
-    color_2 = ["gold", "darkviolet", "limegreen", "dimgrey", "burlywood", "teal", "tomato", "linen", "deeppink",
-               "dodgerblue"]
-    color1 = ["yellow", "purple", "green", "black", "tan", "darkcyan", "red", "peru", "deeppink", "blue"]
-    distance = 0.3
-    error = [0] * 100
+
     while test_total_count < 100:
         fp = open(
             r"C:\Users\Enigma_2020\Desktop\simulation_result\ground_truth_401_" + str(test_total_count) + ".txt",
@@ -66,18 +60,29 @@ if __name__ == '__main__':
         # print(height)
         if height < 1.4 or height > 2:
             continue
-        start = point.point(x1, y1, z1)
-        end = point.point(x2, y2, z2)
+        start = point.point(7, 10, 1)
+        end = point.point(2, 5, 1)
         height = np.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2 + (z1 - z2) ** 2)
         # print(x1, y1, z1)
         # print(x2, y2, z2)
         line_target = sl.Line(start, end, 1000)
-        index_direction = random.randint(0, len(direction) - 1)
 
         Sonar.scaning_result_simple(line_target)
         Sonar1.scaning_result_simple(line_target)
+        Sonar2.scaning_result_simple(line_target)
         scan_result = Sonar.get_result()
         scan_result2 = Sonar1.get_result()
+        scan_result3 = Sonar2.get_result()
+        #result_line = line_target.get_point()
+        #x_t, y_t, z_t = sl.list_position_ndarray(result_line)
+        #x_r, y_r, z_r = sl.list_position_ndarray(scan_result3)
+        #x_r1, y_r1, z_r1 = sl.list_position_ndarray(scan_result)
+        #ax1.plot3D(x_t, y_t, z_t, color="purple")
+        #ax1.plot3D(x_r1, y_r1, z_r1, "green")
+        #ax1.plot3D(x_r, y_r, z_r, "blue")
+        #ax1.scatter3D(8, 5, 1, color="red")
+        #ax1.scatter3D(4, 0, 0, color="yellow")
+        plt.show()
         op.set_global_parameter(scan_result[0].theta,
                                 scan_result[len(scan_result) - 1].theta,
                                 scan_result[0].r,
@@ -90,53 +95,29 @@ if __name__ == '__main__':
         op.set_global_parameter2(scan_result2[0].sonar_theta, scan_result2[len(scan_result2) - 1].sonar_theta,
                                  scan_result2[0].sonar_r, scan_result2[len(scan_result2) - 1].sonar_r, scan_result2,
                                  np.pi * 2 / 3, Sonar1, True)
-        h_min_1 = op.h_start_min
-        h_max_1 = op.h_start_max
-        h_min_2 = op.h_end_min
-        h_max_2 = op.h_end_max
+        h_min_1 = max(op.h_min_2[0], op.h_start_min)
+        h_max_1 = min(op.h_start_max, op.h_max_2[0])
+        h_min_2 = max(op.h_end_min, op.h_min_2[1])
+        h_max_2 = min(op.h_end_max, op.h_max_2[1])
         x = np.linspace(h_min_1, h_max_1, 401)
         y = np.linspace(h_min_2, h_max_2, 401)
-        x_2 = np.linspace(op.h_min_2[0], op.h_max_2[0], 401)
-        y_2 = np.linspace(op.h_min_2[1], op.h_max_2[1], 401)
         x1, y1 = np.meshgrid(x, y)
-        x2, y2 = np.meshgrid(x_2, y_2)
         value = np.zeros((len(x), len(y)))
-        value2 = np.zeros((len(x_2), len(y_2)))
         dic_result = {}
-        dic_result2 = {}
         index = 0
-        index_2 = 0
-        resolve_1 = 2 * h_max_2 / 401
-        resolve_2 = (op.h_max_2[1] - op.h_min_2[1]) / 401
         for i in range(len(x)):
             for j in range(len(y)):
-                value[i][j] = op.function_to_target(x1[i][j], y1[i][j])
-                if value[i][j] > -1:
+                value[i][j] = op.function_to_target_both(x1[i][j], y1[i][j])
+                if value[i][j] > -20:
                     dic_result.update({index: [x1[i][j], y1[i][j], value[i][j]]})
-                    # print(value[i][j])
                     index += 1
-        for i in range(len(x_2)):
-            for j in range(len(y_2)):
-                value2[i][j] = op.function_to_target_sonar2(x2[i][j], y2[i][j])
-                # print(value2[i][j])
-                if value2[i][j] > -1:
-                    dic_result2.update({index_2: [x2[i][j], y2[i][j], value2[i][j]]})
-                    index_2 += 1
-        # print("groud_truth:", op.function_to_target(line_target.start.z, line_target.end.z))
-        # print("groud_truth2:", op.function_to_target_sonar2(line_target.start.z, line_target.end.z))
-        # print(max(resolve_1, resolve_2))
-        cross_set = sg.point_set_cross(dic_result, dic_result2, max(resolve_1, resolve_2))
-        x_weight = -np.inf
-        y_weight = -np.inf
-        print(test_total_count, len(cross_set), len(dic_result), len(dic_result2))
-
-        if len(cross_set) != 0:
-            x_weight, y_weight = sg.weight_recalculate(cross_set)
-        error_1 = np.sqrt((x_weight - line_target.start.z) ** 2 + (y_weight - line_target.end.z) ** 2)
-        error_2 = np.sqrt(
-            (x_weight - (-1 * line_target.start.z)) ** 2 + (y_weight - (-1 * line_target.start.z)) ** 2)
-        error_3 = np.sqrt((x_weight - (2 - line_target.start.z)) ** 2 + (y_weight - (2 - line_target.start.z)) ** 2)
-        error_temp = min(error_1, error_2, error_3)
+                else:
+                    value[i][j] = -21
+        # ax1.plot_surface(x1, y1, value)
+        # ax1.scatter3D(z1, z2, op.function_to_target_both(z1, z2))
+        # for i in range(len(dic_result)):
+        #    ax1.scatter3D(dic_result[i][0], dic_result[i][1], dic_result[i][2])
+        # plt.show()
         '''
         for i in range(len(dic_result)):
             plt.scatter(dic_result[i][0], dic_result[i][1], color=color[test_count], alpha=0.2)
@@ -163,11 +144,3 @@ if __name__ == '__main__':
         plt.ylim(min(h_min_2, op.h_min_2[1]), max(h_max_2, op.h_max_2[1]))
         plt.show()
         '''
-        fp.writelines(str(error_temp) + "\n")
-
-        # line_target.move_line(direction[index_direction], distance)
-        error[test_total_count] = error_temp
-        test_total_count += 1
-        fp.close()
-    error = np.array(error)
-    print(np.mean(error), np.var(error), np.max(error), np.min(error))
