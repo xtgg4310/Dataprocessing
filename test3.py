@@ -33,13 +33,14 @@ if __name__ == '__main__':
 
     while test_total_count < 100:
         fp = open(
-            r"C:\Users\Enigma_2020\Desktop\simulation_fig_vertical_sonar\ground_truth_10_5_1_4_0_1.5_201_dis_" + str(
+            r"C:\Users\Enigma_2020\Desktop\simulation_fig_vertical_sonar\ground_truth_10_5_1_4_0_1.5_201_dis_top200_" + str(
                 test_total_count) + ".txt",
             "w")
         test_count = 0
         Sonar.clear_result()
         Sonar1.clear_result()
         Sonar2.clear_result()
+
         x1 = random.uniform(-8, 8)
         y1 = random.uniform(2, 8)
         z1 = random.uniform(0,
@@ -54,7 +55,7 @@ if __name__ == '__main__':
             y2 = random.uniform(max(2.0, y1 - (2 - abs(x1 - x2))), min(y1 + (2 - abs(x1 - x2)), 8.0))
         z2 = random.uniform(
             max(max(-1 * np.sqrt((x2 - Sonar2.x) ** 2 + (y2 - Sonar2.y) ** 2) * np.tan(np.pi / 8) + Sonar2.z,
-                    -1*np.sqrt(x2 ** 2 + y2 ** 2) * np.tan(np.pi / 8),
+                    -1 * np.sqrt(x2 ** 2 + y2 ** 2) * np.tan(np.pi / 8),
                     -1 * np.sqrt((x2 - Sonar1.x) ** 2 + (y2 - Sonar1.y) ** 2) * np.tan(
                         np.pi / 8) + Sonar1.z), z1 - (2 - np.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2))),
             min(min(np.sqrt((x1 - Sonar2.x) ** 2 + (y1 - Sonar2.y) ** 2) * np.tan(np.pi / 8) + Sonar2.z,
@@ -64,7 +65,7 @@ if __name__ == '__main__':
         while z1 == z2:
             z2 = random.uniform(
                 max(max(-1 * np.sqrt((x2 - Sonar2.x) ** 2 + (y2 - Sonar2.y) ** 2) * np.tan(np.pi / 8) + Sonar2.z,
-                        -1*np.sqrt(x2 ** 2 + y2 ** 2) * np.tan(np.pi / 8),
+                        -1 * np.sqrt(x2 ** 2 + y2 ** 2) * np.tan(np.pi / 8),
                         -1 * np.sqrt((x2 - Sonar1.x) ** 2 + (y2 - Sonar1.y) ** 2) * np.tan(
                             np.pi / 8) + Sonar1.z),
                     z1 - (2 - np.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2))),
@@ -79,8 +80,8 @@ if __name__ == '__main__':
             continue
         start = point.point(x1, y1, z1)
         end = point.point(x2, y2, z2)
-        # print(x1, y1, z1)
-        # print(x2, y2, z2)
+        print(x1, y1, z1)
+        print(x2, y2, z2)
         line_target = sl.Line(start, end, 1000)
         index_direction = random.randint(0, len(direction) - 1)
         while test_count < 1:
@@ -108,71 +109,44 @@ if __name__ == '__main__':
             op.set_global_parameter3(scan_result3[0].sonar_theta, scan_result3[len(scan_result3) - 1].sonar_theta,
                                      scan_result3[0].sonar_r, scan_result3[len(scan_result3) - 1].sonar_r, scan_result3,
                                      np.pi * 2 / 3, Sonar2, True)
-            h_min_1 = min(op.h_start_min, op.h_min_2[0], op.h_min_3[0])
-            h_max_1 = max(op.h_start_max, op.h_max_2[0], op.h_max_3[0])
-            h_min_2 = min(op.h_end_min, op.h_min_2[1], op.h_min_3[1])
-            h_max_2 = max(op.h_end_max, op.h_max_2[1], op.h_max_3[1])
-            x = np.linspace(h_min_1, h_max_1, 201)
-            y = np.linspace(h_min_2, h_max_2, 201)
+            h_min_1 = max(op.h_start_min, op.h_min_2[0], op.h_min_3[0])
+            h_max_1 = min(op.h_start_max, op.h_max_2[0], op.h_max_3[0])
+            h_min_2 = max(op.h_end_min, op.h_min_2[1], op.h_min_3[1])
+            h_max_2 = min(op.h_end_max, op.h_max_2[1], op.h_max_3[1])
+            x = np.linspace(h_min_1, h_max_1, 501)
+            y = np.linspace(h_min_2, h_max_2, 501)
             x1, y1 = np.meshgrid(x, y)
             value = np.zeros((len(x), len(y)))
-            dic_result = {}
-            index = 0
-
+            dic_result = []
+            flag = False
             for i in range(len(x)):
                 for j in range(len(y)):
                     value[i][j] = op.function_to_target_3_sonar_dis(x1[i][j], y1[i][j])
-                    if value[i][j] > -40:
-                        dic_result.update({index: [x1[i][j], y1[i][j], value[i][j]]})
-                        index += 1
+                    if flag:
+                        dic_result = np.append(dic_result, np.array([[x1[i][j], y1[i][j], value[i][j]]]), axis=0)
+                    else:
+                        flag = True
+                        dic_result = np.array([[x1[i][j], y1[i][j], value[i][j]]])
+            top_200_result = sorted(dic_result, key=lambda x: x[2], reverse=True)[0:200]
+            print(top_200_result)
 
-            # for i in range(len(x_2)):
-            #    for j in range(len(y_2)):
-            #        value2[i][j] = op.function_to_target_sonar2(x2[i][j], y2[i][j])
-            # print(value2[i][j])
-            #        if value2[i][j] > -9:
-            #            dic_result2.update({index_2: [x2[i][j], y2[i][j], value2[i][j]]})
-            #            index_2 += 1
-            # print("groud_truth:", op.function_to_target(line_target.start.z, line_target.end.z))
-            # print("groud_truth2:", op.function_to_target_sonar2(line_target.start.z, line_target.end.z))
-            # print(max(resolve_1, resolve_2))
-            # cross_set = sg.point_set_cross(dic_result, dic_result2, max(resolve_1, resolve_2))
-            # x_weight = 0
-            # y_weight = 0
-            # if len(cross_set) != 0:
-            #    x_weight, y_weight = sg.weight_recalculate(cross_set)
-            # for i in range(len(x)):
-            #    for j in range(len(y)):
-            #        print(value[i][j])
-            # print(len(dic_result), len(dic_result2))
-            # time.sleep(30)
-            for i in range(len(dic_result)):
-                plt.scatter(dic_result[i][0], dic_result[i][1], color=color[test_count], alpha=0.2)
-            # for i in range(len(dic_result2)):
-            #    plt.scatter(dic_result2[i][0], dic_result2[i][1], color=color_2[test_count], alpha=0.1)
-            # if len(cross_set) != 0:
-            #    for i in range(len(cross_set)):
-            #        plt.scatter(cross_set[i][0], cross_set[i][1], color="black", alpha=0.3)
-            # if line_target.start.z >= 0:
+            for i in range(200):
+                plt.scatter(top_200_result[i][0], top_200_result[i][1], color=color[test_count], alpha=0.5)
+
             plt.scatter(line_target.start.z, line_target.end.z, color="red")
 
-            # else:
             plt.scatter(-1 * line_target.start.z, -1 * line_target.end.z, color=color1[test_count])
-            # if line_target.start.z >= 1:
-            # plt.scatter(line_target.start.z, line_target.end.z, color=color1[test_count])
-            # else:
+
             plt.scatter(2 - line_target.start.z, 2 - line_target.end.z, color=color1[test_count])
-            # if len(cross_set) != 0:
-            #    plt.scatter(x_weight, y_weight, color="blue")
-            #    print(test_total_count, x_weight - line_target.start.z, y_weight - line_target.end.z)
+
             plt.xlabel('h_1')
             plt.ylabel('h_2')
-            plt.xlim(min(h_min_1, op.h_min_2[0]), max(h_max_1, op.h_max_2[0]))
-            plt.ylim(min(h_min_2, op.h_min_2[1]), max(h_max_2, op.h_max_2[1]))
+            plt.xlim(min(h_min_1, op.h_min_2[0],op.h_min_3[0]), max(h_max_1, op.h_max_2[0],op.h_max_3[0]))
+            plt.ylim(min(h_min_2, op.h_min_2[1],op.h_min_3[1]), max(h_max_2, op.h_max_2[1],op.h_max_3[1]))
             # plt.legend()
             # plt.show()
             plt.savefig(
-                r"C:\Users\Enigma_2020\Desktop\simulation_fig_vertical_sonar\fig_area_10_5_1_4_0_1.5_201_dis_" + str(
+                r"C:\Users\Enigma_2020\Desktop\simulation_fig_vertical_sonar\fig_area_10_5_1_4_0_1.5_201_dis_top200_" + str(
                     test_total_count) + ".jpg")
             plt.close()
             fp.writelines(

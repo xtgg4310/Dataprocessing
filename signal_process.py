@@ -936,7 +936,6 @@ def search_sonar_line_min_dis_theta(x, y, x_1, y_1, z, z_1, target_theta_1):
         z_min_1 = B * (x_min_1 - x) + z
         y_min_1 = k_1 * x_min_1
     # target_1 = point.point(x_min_1+sonar.x, y_min_1+sonar.y, z_min_1+sonar.z).r
-
     target_1 = point.point(x_min_1, y_min_1, z_min_1).r
     return target_1
 
@@ -945,7 +944,7 @@ def search_theta_ground_truth(point_set, theta_target, sonar=None, Flag=False):
     for i in range(len(point_set) - 1):
         if Flag:
             point_set[i].sonar_axis_convert(sonar)
-            ##print(point_set[i].sonar_theta)
+
         if (point_set[i].sonar_theta - theta_target) * (point_set[i + 1].sonar_theta - theta_target) <= 0:
             if point_set[i].sonar_theta == theta_target:
                 return point_set[i].sonar_r, point_set[i].sonar_theta
@@ -990,7 +989,7 @@ def point_set_cross(dataset, dataset2, resolv=0.015):
                 break
 
     len_target_set = len(target_dataset)
-    #print(len_target_set)
+    # print(len_target_set)
     for i in range(len(dataset2)):
         x_temp_2 = dataset2[i][0]
         y_temp_2 = dataset2[i][1]
@@ -1000,7 +999,7 @@ def point_set_cross(dataset, dataset2, resolv=0.015):
             if np.sqrt((x_temp_2 - target_dataset[j][0]) ** 2 + (y_temp_2 - target_dataset[j][1]) ** 2) <= resolv:
                 target_dataset = np.append(target_dataset, np.array([[x_temp_2, y_temp_2, value_temp_2]]), axis=0)
                 break
-    #print(len(target_dataset))
+    # print(len(target_dataset))
     result = sorted(target_dataset, key=lambda x: (x[0], x[1]))
     return result
 
@@ -1012,8 +1011,8 @@ def weight_recalculate(result):
     x_sum = 0
     y_sum = 0
     for i in range(len(result)):
-        x_sum += (result[i][0] * result[i][2])/sum_weight
-        y_sum += (result[i][1] * result[i][2])/sum_weight
-    #x_sum /= len(result)
-    #y_sum /= len(result)
+        x_sum += (result[i][0] * result[i][2]) / sum_weight
+        y_sum += (result[i][1] * result[i][2]) / sum_weight
+    # x_sum /= len(result)
+    # y_sum /= len(result)
     return x_sum, y_sum
