@@ -237,10 +237,10 @@ def add_parameters(start_theta, end_theta, dis1, dis2, scan, vertical_angle, son
                                                                                True)
     for i in range(1, 9):
         k_sonar_temp[i - 1] = (target_dis_temp[i] - target_dis_temp[i - 1]) / (theta_sonar3[i] - theta_sonar3[i - 1])
-    if not theta_sonar_:
+    if theta_sonar_==[]:
         theta_sonar_ = np.array([theta_sonar_temp])
-        start_theta_re_ = np.array(start_theta_temp)
-        end_theta_re_ = np.array(end_theta_temp)
+        start_theta_re_ = np.array([start_theta_temp])
+        end_theta_re_ = np.array([end_theta_temp])
         r_ = np.array([r_temp])
         target_dis_ = np.array([target_dis_temp])
         h_min_ = np.array([h_min_temp])
@@ -250,8 +250,8 @@ def add_parameters(start_theta, end_theta, dis1, dis2, scan, vertical_angle, son
         sonar_.update({0: sonar_temp})
     else:
         theta_sonar_ = np.append(theta_sonar_, np.array([theta_sonar_temp]), axis=0)
-        start_theta_re_ = np.append(start_theta_re_, np.array(start_theta_temp))
-        end_theta_re_ = np.append(end_theta_re_, np.array(end_theta_temp))
+        start_theta_re_ = np.append(start_theta_re_, np.array([start_theta_temp]))
+        end_theta_re_ = np.append(end_theta_re_, np.array([end_theta_temp]))
         r_ = np.append(r_, np.array([r_temp]), axis=0)
         target_dis_ = np.append(target_dis_, np.array([target_dis_temp]), axis=0)
         h_min_ = np.append(h_min_, np.array([h_min_temp]), axis=0)
@@ -398,7 +398,7 @@ def function_to_target_several(h_1, h_2, n):
         diff_k_temp[i] = abs(
             (temp_record_temp[i + 1] - temp_record_temp[i]) / (theta_sonar_temp[i + 1] - theta_sonar_temp[i]) -
             k_sonar_temp[i]) * 100
-    if not diff_k_:
+    if diff_k_==[]:
         diff_k_ = np.array([diff_k_temp])
     else:
         diff_k_ = np.append(diff_k_, np.array([diff_k_temp]), axis=0)

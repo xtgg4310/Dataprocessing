@@ -1,6 +1,6 @@
 import numpy as np
 
-a = np.array(1)
+a = np.array([1])
 c = np.zeros(1)
 b = np.array([2])
 # a=np.array([a])
