@@ -36,7 +36,7 @@ if __name__ == '__main__':
 
     while test_total_count < 100:
         fp = open(
-            r"C:\Users\Enigma_2020\Desktop\simulation_fig_vertical_sonar\ground_truth_10_5_1_4_0_1.5_201_dis_top200_" + str(
+            r"C:\Users\Enigma_2020\Desktop\simulation_fig_vertical_sonar\ground_truth_10_5_1_4_0_1.5_201_dis_4sonar_" + str(
                 test_total_count) + ".txt",
             "w")
         test_count = 0
@@ -156,7 +156,7 @@ if __name__ == '__main__':
             # plt.legend()
             # plt.show()
             plt.savefig(
-                r"C:\Users\Enigma_2020\Desktop\simulation_fig_vertical_sonar\fig_area_10_5_1_4_0_1.5_201_dis_top200_" + str(
+                r"C:\Users\Enigma_2020\Desktop\simulation_fig_vertical_sonar\fig_area_10_5_1_4_0_1.5_201_dis_4sonar_" + str(
                     test_total_count) + ".jpg")
             plt.close()
             fp.writelines(

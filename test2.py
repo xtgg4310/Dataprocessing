@@ -23,16 +23,16 @@ def function_k_A(x, y):
 
 
 if __name__ == '__main__':
-    # a = random.randint(1, 10)
-    # print(a)
-    # data, x, y = txt2matrix.txt_to_matrix_optimization(
-    #    r"C:\Users\Enigma_2020\Desktop\sonar_simulation\record_test_-4,2,3_-2,8,-2_20_200_0.8.txt")
+    Sonar = sl.sonar(0, 0, 0, np.pi * 180 / 180, np.pi / 180, 40, current_angle=0)
+    Sonar1 = sl.sonar(-16, 5, 1, np.pi * 180 / 180, np.pi / 180, 40, current_angle=-1 * np.pi / 2,
+                      angle_scan=np.pi / 180,
+                      end_angle=np.pi / 2)
+    Sonar2 = sl.sonar(-10, 0, 1.5, np.pi * 180 / 180, np.pi / 180, 40, current_angle=0)
+    Sonar3 = sl.sonar(0, 8, 1, np.pi * 180 / 180, np.pi / 180, 40, current_angle=np.pi / 2, angle_scan=np.pi / 180,
+                      end_angle=np.pi * 3 / 4)
+    Sonar4 = sl.sonar(-4, 16, 1, np.pi * 180 / 180, np.pi / 180, 40, current_angle=-1 * np.pi, angle_scan=np.pi / 180,
+                      end_angle=0)
 
-    # plt.scatter(x, y, color='blue')
-    # plt.scatter(3, -2, color='red')
-    # plt.scatter(-3, 2, color='yellow')
-    # plt.grid()
-    # plt.show()
     fig = plt.figure()
     ax1 = Axes3D(fig)
 

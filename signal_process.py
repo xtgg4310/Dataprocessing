@@ -208,9 +208,9 @@ def relative_phase_draw(data, fs, fc, time):
     plt.show()
 
 
-def stft_scalar_calculate(scalar, rate, windows=100, noverlay=30, length=10000, nflag=False):
+def stft_scalar_calculate(scalar, rate, windows=100, noverlay=30, length=1000, nflag=False):
     f, t, Zxx = stft(scalar, rate, nperseg=windows, noverlap=noverlay, nfft=length, return_onesided=nflag)
-    plt.pcolormesh(t, f[0:600], normal_energy(np.abs(Zxx))[0:600])
+    plt.pcolormesh(t, f, normal_energy(np.abs(Zxx)))
     plt.title('STFT Magnitude')
     plt.ylabel('Frequency [Hz]')
     plt.xlabel('Time [sec]')

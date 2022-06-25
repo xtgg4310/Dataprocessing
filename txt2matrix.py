@@ -26,7 +26,9 @@ def txt_to_matrix_speed_time(filename):
     row = 0
     datamat = np.zeros((rows, 1))
     for line in lines:
-        line = line.strip().split(' ')  # strip()默认移除字符串首尾空格或换行符
+        if row == 0:
+            continue
+        line = line.strip().split(',')  # strip()默认移除字符串首尾空格或换行符
         # print(line)
         datamat[row, :] = line[0]
         row += 1
